@@ -3,174 +3,171 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0a0a0f">
+<meta name="theme-color" content="#0c1117">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="FuelMate Perth — Should you fill up now? Live fuel prices, tomorrow's forecast, and your personal savings tracker.">
+<meta name="description" content="FuelMate Perth — Should you fill up now? Live fuel prices, tomorrow's forecast, and personalised savings tracker.">
 <meta property="og:title" content="FuelMate Perth — Stop Overpaying for Fuel">
-<meta property="og:description" content="Perth drivers are overpaying. See live prices, tomorrow's forecast, and how much you could save.">
+<meta property="og:description" content="Perth fuel prices are surging. See live prices, tomorrow's forecast, and how much you could save.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://app.fuelmate.live">
 <link rel="manifest" href="/manifest.json">
 <title>FuelMate Perth</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#06060b;--bg2:#0d0d14;--card:#12121c;--card-h:#181826;
-  --border:#1f1f30;--border2:#2a2a40;
-  --t1:#f0f0f8;--t2:#a0a0b8;--t3:#606078;--t4:#40404f;
-  --green:#00e676;--green-d:#00e67620;--red:#ff3d57;--red-d:#ff3d5720;
-  --amber:#ffab00;--amber-d:#ffab0020;--blue:#448aff;--blue-d:#448aff20;
+  --bg:#0c1117;--bg2:#111920;--card:#151c25;--card-h:#1a2330;
+  --border:#1e2a36;--border2:#2a3a4a;
+  --t1:#eaf0f6;--t2:#8899aa;--t3:#4a5b6d;--t4:#344050;
+  --green:#22d67a;--green-d:rgba(34,214,122,.12);
+  --red:#f0465a;--red-d:rgba(240,70,90,.12);
+  --amber:#f0a030;--amber-d:rgba(240,160,48,.12);
+  --blue:#3d8bfd;--blue-d:rgba(61,139,253,.12);
   --r:14px;--rs:8px;
-  --ff:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;
+  --ff:'Instrument Sans',sans-serif;--fm:'Space Mono',monospace
 }
 html{background:var(--bg);color:var(--t1);font-family:var(--ff);-webkit-font-smoothing:antialiased}
 body{min-height:100dvh;overflow-x:hidden}
 
-/* LOADING */
-#loader{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .5s,visibility .5s}
-#loader.out{opacity:0;visibility:hidden;pointer-events:none}
-.ld-logo{font-family:var(--fm);font-size:24px;font-weight:800;letter-spacing:-1px}
+/* LOADER */
+#ld{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .5s,visibility .5s}
+#ld.out{opacity:0;visibility:hidden;pointer-events:none}
+.ld-logo{font-family:var(--fm);font-size:20px;font-weight:700;letter-spacing:2px}
 .ld-logo em{font-style:normal;color:var(--green)}
-.ld-sub{font-size:12px;color:var(--t3);letter-spacing:3px;text-transform:uppercase}
-.ld-bar{width:120px;height:3px;background:var(--border);border-radius:3px;overflow:hidden}
-.ld-bar i{display:block;width:40%;height:100%;background:var(--green);border-radius:3px;animation:ldslide 1s ease-in-out infinite}
-@keyframes ldslide{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+.ld-sub{font-size:11px;color:var(--t3);letter-spacing:3px;text-transform:uppercase}
+.ld-bar{width:100px;height:2px;background:var(--border);border-radius:2px;overflow:hidden}
+.ld-bar i{display:block;width:35%;height:100%;background:var(--green);border-radius:2px;animation:slide 1s ease-in-out infinite}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(380%)}}
 
-/* SHELL */
-.app{max-width:460px;margin:0 auto;padding:0 14px 110px;opacity:0;transition:opacity .5s .2s}
-.app.on{opacity:1}
+/* APP */
+.app{max-width:480px;margin:0 auto;padding:0 16px 120px;opacity:0;transition:opacity .5s .2s}.app.on{opacity:1}
 
 /* HEADER */
-.hd{padding:18px 0 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;background:linear-gradient(var(--bg) 60%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-.hd-brand{font-family:var(--fm);font-size:17px;font-weight:800;letter-spacing:-0.5px}
+.hd{padding:16px 0 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;background:linear-gradient(var(--bg) 70%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.hd-brand{font-family:var(--fm);font-size:15px;font-weight:700;letter-spacing:1px}
 .hd-brand em{font-style:normal;color:var(--green)}
-.hd-date{font-size:10px;color:var(--t4);letter-spacing:2px;text-transform:uppercase;font-family:var(--fm)}
+.hd-date{font-size:10px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--fm)}
 
 /* PILLS */
-.pills{display:flex;gap:5px;padding:3px;background:var(--bg2);border-radius:10px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
+.pills{display:flex;gap:4px;padding:3px;background:var(--bg2);border-radius:10px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .pills::-webkit-scrollbar{display:none}
-.pill{flex-shrink:0;padding:8px 14px;border:none;background:0;color:var(--t3);font-family:var(--ff);font-size:11.5px;font-weight:600;border-radius:8px;cursor:pointer;transition:.2s;white-space:nowrap}
-.pill.on{background:var(--card);color:var(--t1);box-shadow:0 2px 8px #0004}
+.pill{flex:1;min-width:0;padding:9px 8px;border:none;background:0;color:var(--t3);font-family:var(--ff);font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;transition:.2s;white-space:nowrap;text-align:center}
+.pill.on{background:var(--card);color:var(--t1);box-shadow:0 2px 8px rgba(0,0,0,.3)}
 
 /* VERDICT */
-.vd{position:relative;border-radius:var(--r);padding:24px 22px;margin-bottom:12px;border:1px solid var(--border);background:var(--card);overflow:hidden}
-.vd::before{content:'';position:absolute;inset:0;opacity:.06;border-radius:var(--r)}
-.vd.go::before{background:linear-gradient(135deg,var(--green),#00c853)}
-.vd.wait::before{background:linear-gradient(135deg,var(--amber),#ff6d00)}
-.vd.now::before{background:linear-gradient(135deg,var(--red),#ff1744)}
-.vd-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:var(--t4);margin-bottom:10px}
-.vd-ans{font-family:var(--fm);font-size:30px;font-weight:800;line-height:1.1;margin-bottom:6px}
+.vd{position:relative;border-radius:var(--r);padding:24px 20px;margin-bottom:10px;border:1px solid var(--border);background:var(--card);overflow:hidden}
+.vd::before{content:'';position:absolute;inset:0;opacity:.05;border-radius:var(--r)}
+.vd.go::before{background:linear-gradient(135deg,var(--green),#0fa968)}
+.vd.wait::before{background:linear-gradient(135deg,var(--amber),#d08020)}
+.vd.now::before{background:linear-gradient(135deg,var(--red),#d02040)}
+.vd-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--t3);margin-bottom:10px}
+.vd-ans{font-family:var(--fm);font-size:28px;font-weight:700;line-height:1.1;margin-bottom:6px}
 .vd.go .vd-ans{color:var(--green)}.vd.wait .vd-ans{color:var(--amber)}.vd.now .vd-ans{color:var(--red)}
-.vd-why{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:18px}
-.vd-why b{color:var(--t1);font-weight:600}
-.vd-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.vs{text-align:center}
-.vs-v{font-family:var(--fm);font-size:19px;font-weight:700}
-.vs-l{font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:1.2px;margin-top:2px}
+.vd-why{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px}.vd-why b{color:var(--t1);font-weight:600}
 
-/* METER */
-.mt{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:12px}
-.mt-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.mt-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px}
-.mt-badge{font-family:var(--fm);font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
-.mt-badge.fair{background:var(--green-d);color:var(--green)}
-.mt-badge.mid{background:var(--amber-d);color:var(--amber)}
-.mt-badge.rip{background:var(--red-d);color:var(--red)}
-.mt-track{height:8px;background:var(--bg2);border-radius:8px;overflow:hidden;margin-bottom:6px}
-.mt-fill{height:100%;border-radius:8px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
-.mt-fill.fair{background:linear-gradient(90deg,var(--green),#69f0ae)}
-.mt-fill.mid{background:linear-gradient(90deg,var(--amber),#ff6d00)}
-.mt-fill.rip{background:linear-gradient(90deg,var(--red),#ff1744)}
-.mt-range{display:flex;justify-content:space-between;font-size:9px;color:var(--t4);font-family:var(--fm)}
-.mt-detail{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:12.5px;color:var(--t2);line-height:1.6}
-.mt-detail b{color:var(--t1)}
+/* SPARKLINE */
+.vd-spark{margin:0 -2px 14px}.vd-spark svg{width:100%;height:36px;display:block}
+.vd-spark-lbl{font-size:9px;color:var(--t4);font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;text-align:right;margin-top:2px}
 
-/* HISTORY CHART */
-.ch{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:12px}
-.ch-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;margin-bottom:14px}
-.ch-empty{text-align:center;padding:20px 0;color:var(--t3);font-size:12px}
-.ch canvas{width:100%!important;height:180px!important}
+.vd-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.vs{text-align:center;padding:8px 0;background:var(--bg2);border-radius:var(--rs)}
+.vs-v{font-family:var(--fm);font-size:17px;font-weight:700}
+.vs-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* PRICE PRESSURE */
+.pp{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:10px}
+.pp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.pp-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px}
+.pp-badge{font-family:var(--fm);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px}
+.pp-badge.lo{background:var(--green-d);color:var(--green)}
+.pp-badge.md{background:var(--amber-d);color:var(--amber)}
+.pp-badge.hi{background:var(--red-d);color:var(--red)}
+.pp-track{height:6px;background:var(--bg2);border-radius:6px;overflow:hidden;margin-bottom:6px}
+.pp-fill{height:100%;border-radius:6px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.pp-fill.lo{background:linear-gradient(90deg,var(--green),#40e890)}
+.pp-fill.md{background:linear-gradient(90deg,var(--amber),#e08020)}
+.pp-fill.hi{background:linear-gradient(90deg,var(--red),#ff5070)}
+.pp-range{display:flex;justify-content:space-between;font-size:9px;color:var(--t4);font-family:var(--fm);letter-spacing:.5px}
+.pp-detail{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12.5px;color:var(--t2);line-height:1.6}.pp-detail b{color:var(--t1)}
+
+/* CHART */
+.ch{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:10px}
+.ch-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.ch-empty{text-align:center;padding:16px 0;color:var(--t3);font-size:12px}
+.ch canvas{width:100%!important;height:170px!important}
 
 /* STATION LIST */
-.ls{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
-.ls-hd{padding:16px 18px 12px;display:flex;justify-content:space-between;align-items:center}
-.ls-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px}
-.ls-tag{font-size:10px;font-weight:700;color:var(--blue);background:var(--blue-d);padding:2px 8px;border-radius:5px;letter-spacing:.8px;text-transform:uppercase}
-.si{display:flex;align-items:center;padding:12px 18px;gap:12px;border-top:1px solid var(--border);transition:background .15s;cursor:pointer}
-.si:hover{background:var(--card-h)}
-.si-rank{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--t4);width:20px;text-align:center;flex-shrink:0}
-.si-rank.top{color:var(--green)}
-.si-info{flex:1;min-width:0}
-.si-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.si-loc{font-size:11px;color:var(--t3);margin-top:1px}
-.si-brand{font-size:9px;color:var(--t2);background:var(--bg2);padding:2px 7px;border-radius:4px;display:inline-block;margin-top:3px}
-.si-price{font-family:var(--fm);font-size:17px;font-weight:700;flex-shrink:0}
-.si-price small{font-size:11px;color:var(--t3)}
+.ls{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.ls-hd{padding:14px 16px 10px;display:flex;justify-content:space-between;align-items:center}
+.ls-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px}
+.ls-tag{font-size:10px;font-weight:700;color:var(--blue);background:var(--blue-d);padding:3px 8px;border-radius:5px;letter-spacing:.5px;text-transform:uppercase}
+.si{display:flex;align-items:center;padding:11px 16px;gap:10px;border-top:1px solid var(--border);transition:background .15s;cursor:pointer}
+.si:active{background:var(--card-h)}
+.si-rank{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--t4);width:18px;text-align:center;flex-shrink:0}.si-rank.top{color:var(--green)}
+.si-info{flex:1;min-width:0}.si-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.si-loc{font-size:11px;color:var(--t3);margin-top:1px;display:flex;align-items:center;gap:4px}
+.si-loc svg{width:12px;height:12px;opacity:.5;flex-shrink:0}
+.si-brand{font-size:9px;color:var(--t2);background:var(--bg2);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:3px}
+.si-price{font-family:var(--fm);font-size:16px;font-weight:700;flex-shrink:0}.si-price small{font-size:10px;color:var(--t3)}
 
 /* SAVINGS */
-.sv{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:12px}
-.sv-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;margin-bottom:14px}
-.sv-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+.sv{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:10px}
+.sv-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.sv-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0}
 .sv-row+.sv-row{border-top:1px solid var(--border)}
 .sv-row span:first-child{font-size:12.5px;color:var(--t2)}
-.sv-row span:last-child{font-family:var(--fm);font-size:15px;font-weight:700;color:var(--green)}
-.sv-big{text-align:center;padding:16px 0 6px;border-top:1px solid var(--border);margin-top:8px}
-.sv-big-l{font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:2px;margin-bottom:4px}
-.sv-big-v{font-family:var(--fm);font-size:38px;font-weight:800;color:var(--green)}
+.sv-row span:last-child{font-family:var(--fm);font-size:14px;font-weight:700;color:var(--green)}
+.sv-big{text-align:center;padding:14px 0 4px;border-top:1px solid var(--border);margin-top:6px}
+.sv-big-l{font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:2px;margin-bottom:3px}
+.sv-big-v{font-family:var(--fm);font-size:34px;font-weight:700;color:var(--green)}
 
-/* SHARE */
-.sh-bar{position:fixed;bottom:0;left:0;right:0;padding:14px;background:linear-gradient(to top,var(--bg) 55%,transparent);z-index:50;display:flex;justify-content:center}
-.sh-btn{width:100%;max-width:432px;padding:14px;border:none;border-radius:12px;font-family:var(--ff);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;color:#000;background:var(--green);box-shadow:0 4px 20px #00e67640;transition:transform .1s}
+/* MY CAR */
+.mc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:10px}
+.mc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.mc-cur{font-family:var(--fm);font-size:11px;color:var(--green);font-weight:700}
+.mc-change{font-size:12px;color:var(--blue);cursor:pointer;font-weight:600;margin-bottom:8px}
+.mc-prompt{font-size:12px;color:var(--t2);margin-bottom:10px}
+.mc-picker.hide{display:none}
+.mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
+.mc-opt{padding:10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);font-size:11.5px;font-weight:600;cursor:pointer;transition:.15s;line-height:1.3}
+.mc-opt small{display:block;font-size:10px;color:var(--t3);font-weight:400;margin-top:1px}
+.mc-opt.on{border-color:var(--green);background:var(--green-d)}
+.mc-custom{display:flex;align-items:center;gap:6px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--t3)}
+.mc-custom input[type=range]{flex:1;accent-color:var(--green);height:3px}
+.mc-custom span:last-of-type{font-family:var(--fm);font-weight:700;color:var(--t1);min-width:34px;font-size:12px}
+.mc-custom button{padding:6px 12px;border:none;background:var(--green);color:var(--bg);border-radius:var(--rs);font-family:var(--ff);font-size:11px;font-weight:700;cursor:pointer}
+
+/* SHARE BAR */
+.sh-bar{position:fixed;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:50;display:flex;justify-content:center}
+.sh-btn{width:100%;max-width:448px;padding:14px;border:none;border-radius:12px;font-family:var(--ff);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--bg);background:var(--green);box-shadow:0 4px 20px rgba(34,214,122,.3);transition:transform .1s;-webkit-tap-highlight-color:transparent}
 .sh-btn:active{transform:scale(.97)}
 .sh-btn svg{width:16px;height:16px}
 
 /* FOOTER */
-.ft{text-align:center;padding:24px 0 16px;font-size:10px;color:var(--t4);line-height:1.7}
+.ft{text-align:center;padding:20px 0 16px;font-size:10px;color:var(--t4);line-height:1.7}
 .ft a{color:var(--t3);text-decoration:underline;text-underline-offset:2px}
 
 /* TOAST */
-.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--card);border:1px solid var(--border2);color:var(--t1);padding:10px 18px;border-radius:10px;font-size:12px;font-weight:600;z-index:200;transition:transform .35s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-70px);background:var(--card);border:1px solid var(--border2);color:var(--t1);padding:10px 18px;border-radius:10px;font-size:12px;font-weight:600;z-index:200;transition:transform .3s cubic-bezier(.4,0,.2,1);pointer-events:none}
 .toast.on{transform:translateX(-50%) translateY(0)}
 
-/* ANIMATIONS */
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.anim{animation:fadeUp .45s ease-out both}
+/* ANIM */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:fadeUp .4s ease-out both}
 .d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}.d5{animation-delay:.25s}
 
-@media(max-width:380px){.vd-ans{font-size:24px}.vs-v{font-size:16px}.sv-big-v{font-size:30px}}
+/* ERROR */
+.err{text-align:center;padding:28px 16px;color:var(--t3)}.err h3{color:var(--red);font-size:14px;margin-bottom:4px}.err p{font-size:12px}
 
-/* SPARKLINE WORM */
-.vd-spark{margin:0 -4px 16px;position:relative}
-.vd-spark svg{width:100%;height:40px;display:block}
-.vd-spark-label{position:absolute;bottom:-2px;right:0;font-size:9px;color:var(--t4);font-family:var(--fm);letter-spacing:1px;text-transform:uppercase}
-
-/* MY CAR */
-.mc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:12px}
-.mc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.mc-current{font-family:var(--fm);font-size:11px;color:var(--green);font-weight:600}
-.mc-prompt{font-size:12.5px;color:var(--t2);margin-bottom:12px}
-.mc-change{font-size:12px;color:var(--blue);cursor:pointer;font-weight:600;margin-bottom:10px}
-.mc-picker{overflow:hidden;transition:max-height .3s ease}
-.mc-picker.hidden{max-height:0!important;overflow:hidden}
-.mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
-.mc-opt{padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;transition:.2s;line-height:1.3}
-.mc-opt small{display:block;font-size:10px;color:var(--t3);font-weight:400;margin-top:2px}
-.mc-opt:hover{border-color:var(--t3)}
-.mc-opt.on{border-color:var(--green);background:var(--green-d)}
-.mc-custom{display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--t3)}
-.mc-custom input[type=range]{flex:1;accent-color:var(--green);height:4px}
-.mc-custom span:last-of-type{font-family:var(--fm);font-weight:700;color:var(--t1);min-width:36px}
-.mc-custom button{padding:6px 14px;border:none;background:var(--green);color:#000;border-radius:var(--rs);font-family:var(--ff);font-size:11px;font-weight:700;cursor:pointer}
+@media(max-width:380px){.vd-ans{font-size:22px}.vs-v{font-size:15px}.sv-big-v{font-size:28px}}
 </style>
 </head>
 <body>
 
-<div id="loader">
+<div id="ld">
   <div class="ld-logo">FUEL<em>MATE</em></div>
   <div class="ld-sub">Checking Perth prices</div>
   <div class="ld-bar"><i></i></div>
@@ -184,352 +181,218 @@ body{min-height:100dvh;overflow-x:hidden}
     <div class="hd-date" id="hd-date"></div>
   </header>
 
-  <div class="pills" id="region-pills"></div>
-  <div class="pills" id="fuel-pills"></div>
+  <div class="pills" id="rp"></div>
+  <div class="pills" id="fp"></div>
 
-  <div id="verdict-section"></div>
-  <div id="meter-section"></div>
-  <div id="chart-section"></div>
-  <div id="cheapest-section"></div>
-  <div id="savings-section"></div>
-  <div id="mycar-section"></div>
+  <div id="sec-verdict"></div>
+  <div id="sec-pressure"></div>
+  <div id="sec-chart"></div>
+  <div id="sec-stations"></div>
+  <div id="sec-savings"></div>
+  <div id="sec-car"></div>
 
   <div class="ft">
     Data from <a href="https://www.fuelwatch.wa.gov.au" target="_blank" rel="noopener">FuelWatch WA</a><br>
     Prices published by the WA Government · Updated daily<br>
-    <span style="margin-top:4px;display:inline-block">Built in Perth, for Perth 🇦🇺</span>
+    <span style="margin-top:3px;display:inline-block">Built in Perth, for Perth 🇦🇺</span>
   </div>
 </div>
 
 <div class="sh-bar">
-  <button class="sh-btn" id="sh-btn" onclick="doShare()">
+  <button class="sh-btn" onclick="doShare()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
     Share Perth Fuel Alert
   </button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
 <script>
-const REGIONS = [{id:'25',name:'North'},{id:'26',name:'South'},{id:'27',name:'East / Hills'}];
+// ============================================
+// FuelMate Perth v2
+// ============================================
+
+// "All Perth" fetches all 3 regions and merges
+const REGIONS = [
+  {id:'all',name:'All Perth'},
+  {id:'25',name:'North'},
+  {id:'26',name:'South'},
+  {id:'27',name:'East / Hills'},
+];
 const FUELS = [{id:'1',name:'ULP 91'},{id:'2',name:'PULP 95'},{id:'6',name:'98 RON'},{id:'4',name:'Diesel'},{id:'5',name:'LPG'}];
 
-let region = '25', fuel = '1';
-let todayData = [], tomorrowData = [], historyData = [];
-let priceChart = null;
-
-// ---- My Car (persisted in localStorage) ----
-const POPULAR_CARS = [
-  {name:'Toyota Hilux',tank:80,fuel:'1'},{name:'Ford Ranger',tank:80,fuel:'4'},
-  {name:'Toyota RAV4',tank:55,fuel:'1'},{name:'Mazda CX-5',tank:56,fuel:'1'},
-  {name:'Toyota Corolla',tank:50,fuel:'1'},{name:'Hyundai i30',tank:50,fuel:'1'},
-  {name:'Kia Cerato',tank:50,fuel:'1'},{name:'Mitsubishi Triton',tank:75,fuel:'4'},
-  {name:'Toyota LandCruiser',tank:138,fuel:'4'},{name:'Isuzu D-Max',tank:76,fuel:'4'},
-  {name:'Nissan X-Trail',tank:55,fuel:'1'},{name:'Hyundai Tucson',tank:54,fuel:'1'},
-  {name:'Subaru Outback',tank:63,fuel:'1'},{name:'Tesla Model 3',tank:0,fuel:'0'},
-  {name:'Custom',tank:50,fuel:'1'},
+const CARS = [
+  {n:'Toyota Hilux',t:80},{n:'Ford Ranger',t:80},{n:'Toyota RAV4',t:55},{n:'Mazda CX-5',t:56},
+  {n:'Toyota Corolla',t:50},{n:'Hyundai i30',t:50},{n:'Kia Cerato',t:50},{n:'Mitsubishi Triton',t:75},
+  {n:'Toyota LandCruiser',t:138},{n:'Isuzu D-Max',t:76},{n:'Nissan X-Trail',t:55},{n:'Hyundai Tucson',t:54},
 ];
 
-function getMyCar() {
-  try {
-    const saved = JSON.parse(localStorage.getItem('fuelmate_car'));
-    if (saved && saved.tank) return saved;
-  } catch(_){}
-  return { name: '', tank: 50, fuel: '1' };
-}
+let reg='all', fl='1', tData=[], nData=[], hist=[], chart=null;
 
-function saveMyCar(car) {
-  localStorage.setItem('fuelmate_car', JSON.stringify(car));
-  renderAll();
-  renderMyCar();
-}
+function car() { try { const c=JSON.parse(localStorage.getItem('fm_car')); if(c?.t) return c; } catch(e){} return {n:'',t:50}; }
+function setCar(c) { localStorage.setItem('fm_car',JSON.stringify(c)); renderAll(); renderCar(); }
 
-function renderMyCar() {
-  const el = document.getElementById('mycar-section');
-  const car = getMyCar();
-  const hascar = car.name && car.name !== '';
+// ---- API ----
+async function api(p) { const r=await fetch(p); if(!r.ok) throw new Error(r.status); return r.json(); }
 
-  el.innerHTML = `<div class="mc anim d5">
-    <div class="mc-top">
-      <div class="mt-title">My Car</div>
-      ${hascar ? `<div class="mc-current">${car.name} · ${car.tank}L</div>` : ''}
-    </div>
-    ${hascar ? `<div class="mc-change" onclick="toggleCarPicker()">Change vehicle</div>` : `<div class="mc-prompt">Set your vehicle for personalised savings</div>`}
-    <div id="car-picker" class="${hascar ? 'mc-picker hidden' : 'mc-picker'}">
-      <div class="mc-grid">
-        ${POPULAR_CARS.filter(c=>c.tank>0).map(c =>
-          `<div class="mc-opt ${car.name===c.name?'on':''}" onclick="saveMyCar({name:'${c.name}',tank:${c.tank},fuel:'${c.fuel}'})">${c.name}<small>${c.tank}L</small></div>`
-        ).join('')}
-      </div>
-      <div class="mc-custom">
-        <span>Custom tank:</span>
-        <input type="range" id="tank-slider" min="30" max="150" value="${car.tank}" oninput="document.getElementById('tank-val').textContent=this.value+'L'">
-        <span id="tank-val">${car.tank}L</span>
-        <button onclick="saveMyCar({name:'Custom',tank:parseInt(document.getElementById('tank-slider').value),fuel:fuel})">Set</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-function toggleCarPicker() {
-  document.getElementById('car-picker').classList.toggle('hidden');
-}
-
-// ---- API calls (now to our own backend) ----
-async function api(path) {
-  const r = await fetch(path);
-  if (!r.ok) throw new Error(`API ${r.status}`);
-  return r.json();
+async function fetchPrices(product, day) {
+  if (reg === 'all') {
+    const [n,s,e] = await Promise.all([
+      api(`/api/prices?product=${product}&region=25&day=${day}`).catch(()=>({stations:[]})),
+      api(`/api/prices?product=${product}&region=26&day=${day}`).catch(()=>({stations:[]})),
+      api(`/api/prices?product=${product}&region=27&day=${day}`).catch(()=>({stations:[]})),
+    ]);
+    const all = [...(n.stations||[]),...(s.stations||[]),...(e.stations||[])].sort((a,b)=>a.price-b.price);
+    return all;
+  }
+  const d = await api(`/api/prices?product=${product}&region=${reg}&day=${day}`);
+  return d.stations || [];
 }
 
 async function loadData() {
-  const [today, tomorrow, history] = await Promise.allSettled([
-    api(`/api/prices?product=${fuel}&region=${region}&day=today`),
-    api(`/api/prices?product=${fuel}&region=${region}&day=tomorrow`),
-    api(`/api/history?product=${fuel}&region=${region}&days=30`),
+  const [t,n,h] = await Promise.allSettled([
+    fetchPrices(fl,'today'),
+    fetchPrices(fl,'tomorrow'),
+    api(`/api/history?product=${fl}&region=${reg==='all'?'25':reg}&days=30`),
   ]);
-  todayData = today.status === 'fulfilled' ? today.value.stations : [];
-  tomorrowData = tomorrow.status === 'fulfilled' ? tomorrow.value.stations : [];
-  historyData = history.status === 'fulfilled' ? history.value.history : [];
-
+  tData = t.status==='fulfilled' ? t.value : [];
+  nData = n.status==='fulfilled' ? n.value : [];
+  hist = h.status==='fulfilled' ? (h.value.history||[]) : [];
   renderAll();
 }
 
-// ---- Render functions ----
+// ---- RENDER ----
 function renderPills() {
-  const rp = document.getElementById('region-pills');
-  rp.innerHTML = REGIONS.map(r => `<button class="pill ${r.id===region?'on':''}" onclick="setRegion('${r.id}')">${r.name}</button>`).join('');
-
-  const fp = document.getElementById('fuel-pills');
-  fp.innerHTML = FUELS.map(f => `<button class="pill ${f.id===fuel?'on':''}" onclick="setFuel('${f.id}')">${f.name}</button>`).join('');
+  document.getElementById('rp').innerHTML = REGIONS.map(r=>`<button class="pill ${r.id===reg?'on':''}" onclick="setReg('${r.id}')">${r.name}</button>`).join('');
+  document.getElementById('fp').innerHTML = FUELS.map(f=>`<button class="pill ${f.id===fl?'on':''}" onclick="setFl('${f.id}')">${f.name}</button>`).join('');
 }
 
-function renderAll() {
-  renderVerdict();
-  renderMeter();
-  renderChart();
-  renderCheapest();
-  renderSavings();
-  renderMyCar();
-}
+function renderAll() { renderVerdict(); renderPressure(); renderChart(); renderStations(); renderSavings(); renderCar(); }
 
-function buildSparkline(data) {
-  if (!data || data.length < 2) return '';
-  const prices = data.map(h => h.avg_price);
-  const min = Math.min(...prices) - 2, max = Math.max(...prices) + 2;
-  const w = 260, h = 40;
-  const points = prices.map((p, i) => {
-    const x = (i / (prices.length - 1)) * w;
-    const y = h - ((p - min) / (max - min)) * h;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  });
-  const last = prices[prices.length - 1];
-  const prev = prices[prices.length - 2];
-  const color = last > prev ? 'var(--red)' : 'var(--green)';
-  const lx = (w).toFixed(1), ly = (h - ((last - min) / (max - min)) * h).toFixed(1);
-
-  return `<div class="vd-spark">
-    <svg viewBox="0 0 ${w} ${h+6}" preserveAspectRatio="none">
-      <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
-        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
-      </linearGradient></defs>
-      <polygon points="0,${h+6} ${points.join(' ')} ${w},${h+6}" fill="url(#sg)"/>
-      <polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="${lx}" cy="${ly}" r="3" fill="${color}"/>
-    </svg>
-    <div class="vd-spark-label">${prices.length}-day trend</div>
-  </div>`;
+function sparkSVG() {
+  if (!hist||hist.length<2) return '';
+  const p=hist.map(h=>h.avg_price), mn=Math.min(...p)-2, mx=Math.max(...p)+2, w=280, h=32;
+  const pts=p.map((v,i)=>`${(i/(p.length-1)*w).toFixed(1)},${(h-((v-mn)/(mx-mn))*h).toFixed(1)}`);
+  const last=p[p.length-1],prev=p[p.length-2],col=last>prev?'var(--red)':'var(--green)';
+  const lx=w,ly=h-((last-mn)/(mx-mn))*h;
+  return `<div class="vd-spark"><svg viewBox="0 0 ${w} ${h+4}" preserveAspectRatio="none"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".2"/><stop offset="100%" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><polygon points="0,${h+4} ${pts.join(' ')} ${w},${h+4}" fill="url(#sg)"/><polyline points="${pts.join(' ')}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${lx}" cy="${ly.toFixed(1)}" r="2.5" fill="${col}"/></svg><div class="vd-spark-lbl">${p.length}-day trend</div></div>`;
 }
 
 function renderVerdict() {
-  const el = document.getElementById('verdict-section');
-  if (!todayData.length) {
-    el.innerHTML = '<div style="text-align:center;padding:32px 16px;color:var(--t3)"><p style="color:var(--red);font-weight:700;margin-bottom:6px">No data yet</p><p style="font-size:13px">FuelWatch hasn\'t published prices for this selection.</p></div>';
-    return;
-  }
-
-  const tMin = todayData[0].price, tMax = todayData[todayData.length-1].price;
-  const tAvg = todayData.reduce((s,d)=>s+d.price,0)/todayData.length;
-  const spread = tMax - tMin;
-  let cls, ans, why;
-
-  if (tomorrowData.length) {
-    const nAvg = tomorrowData.reduce((s,d)=>s+d.price,0)/tomorrowData.length;
-    const diff = nAvg - tAvg;
-    if (diff > 3) { cls='now'; ans='FILL UP NOW'; why=`Prices are <b>jumping ${diff.toFixed(1)}¢/L tomorrow</b>. Fill your tank today.`; }
-    else if (diff < -3) { cls='wait'; ans='WAIT'; why=`Prices are <b>dropping ${Math.abs(diff).toFixed(1)}¢/L tomorrow</b>. Hold off and save.`; }
-    else { cls='go'; ans='FILL UP'; why=`Prices are <b>stable</b> — tomorrow within ${Math.abs(diff).toFixed(1)}¢/L. No reason to wait.`; }
-  } else {
-    cls='go'; ans='FILL UP';
-    why=`Tomorrow's prices publish after <b>2:30pm</b>. Today's cheapest is <b>${tMin.toFixed(1)}¢/L</b>.`;
-  }
-
-  const sparkline = buildSparkline(historyData);
-
-  el.innerHTML = `<div class="vd ${cls} anim">
-    <div class="vd-lbl">Should you fill up?</div>
-    <div class="vd-ans">${ans}</div>
-    <div class="vd-why">${why}</div>
-    ${sparkline}
-    <div class="vd-stats">
-      <div class="vs"><div class="vs-v">${tMin.toFixed(1)}</div><div class="vs-l">Cheapest ¢/L</div></div>
-      <div class="vs"><div class="vs-v">${tAvg.toFixed(1)}</div><div class="vs-l">Average ¢/L</div></div>
-      <div class="vs"><div class="vs-v">${spread.toFixed(1)}</div><div class="vs-l">Spread ¢/L</div></div>
-    </div>
-  </div>`;
+  const el=document.getElementById('sec-verdict');
+  if(!tData.length){el.innerHTML='<div class="err"><h3>No data</h3><p>FuelWatch hasn\'t published prices for this selection.</p></div>';return;}
+  const mn=tData[0].price,mx=tData[tData.length-1].price,avg=tData.reduce((s,d)=>s+d.price,0)/tData.length,sp=mx-mn;
+  let cls,ans,why;
+  if(nData.length){const na=nData.reduce((s,d)=>s+d.price,0)/nData.length,df=na-avg;
+    if(df>3){cls='now';ans='FILL UP NOW';why=`Prices <b>jumping ${df.toFixed(1)}¢/L tomorrow</b>. Fill your tank today.`;}
+    else if(df<-3){cls='wait';ans='WAIT';why=`Prices <b>dropping ${Math.abs(df).toFixed(1)}¢/L tomorrow</b>. Hold off and save.`;}
+    else{cls='go';ans='FILL UP';why=`Prices <b>stable</b> — tomorrow within ${Math.abs(df).toFixed(1)}¢/L of today.`;}
+  }else{cls='go';ans='FILL UP';why=`Tomorrow's prices available after <b>2:30pm</b>. Cheapest now <b>${mn.toFixed(1)}¢/L</b>.`;}
+  el.innerHTML=`<div class="vd ${cls} anim"><div class="vd-lbl">Should you fill up?</div><div class="vd-ans">${ans}</div><div class="vd-why">${why}</div>${sparkSVG()}<div class="vd-stats"><div class="vs"><div class="vs-v">${mn.toFixed(1)}</div><div class="vs-l">Cheapest</div></div><div class="vs"><div class="vs-v">${avg.toFixed(1)}</div><div class="vs-l">Average</div></div><div class="vs"><div class="vs-v">${sp.toFixed(1)}</div><div class="vs-l">Spread</div></div></div></div>`;
 }
 
-function renderMeter() {
-  const el = document.getElementById('meter-section');
-  if (!todayData.length) { el.innerHTML=''; return; }
-  const tMin = todayData[0].price;
-  const tAvg = todayData.reduce((s,d)=>s+d.price,0)/todayData.length;
-  const spread = (tAvg - tMin) / tMin * 100;
-
-  // Factor in tomorrow for urgency score (0-100)
-  let urgency = spread / 15 * 50; // spread contributes up to 50%
-  let tomorrowMsg = '';
-  if (tomorrowData.length) {
-    const nAvg = tomorrowData.reduce((s,d)=>s+d.price,0)/tomorrowData.length;
-    const diff = nAvg - tAvg;
-    if (diff > 0) { urgency += Math.min(diff / 10 * 50, 50); tomorrowMsg = `Prices are <b>rising ${diff.toFixed(1)}¢/L tomorrow</b>.`; }
-    else { urgency = Math.max(urgency - 15, 5); tomorrowMsg = `Prices are <b>easing ${Math.abs(diff).toFixed(1)}¢/L tomorrow</b>.`; }
+function renderPressure() {
+  const el=document.getElementById('sec-pressure');
+  if(!tData.length){el.innerHTML='';return;}
+  const mn=tData[0].price,avg=tData.reduce((s,d)=>s+d.price,0)/tData.length,gap=(avg-mn)/mn*100;
+  let urg=gap/15*50,tmsg='';
+  if(nData.length){const na=nData.reduce((s,d)=>s+d.price,0)/nData.length,df=na-avg;
+    if(df>0){urg+=Math.min(df/10*50,50);tmsg=`Prices <b>rising ${df.toFixed(1)}¢/L tomorrow</b>.`;}
+    else{urg=Math.max(urg-15,5);tmsg=`Prices <b>easing ${Math.abs(df).toFixed(1)}¢/L tomorrow</b>.`;}
   }
-  urgency = Math.min(Math.max(urgency, 3), 100);
-
-  let lv, lt;
-  if (urgency < 30) { lv='fair'; lt='Low'; }
-  else if (urgency < 65) { lv='mid'; lt='Moderate'; }
-  else { lv='rip'; lt='High'; }
-
-  const tankSize = getMyCar().tank;
-  const saved = ((tAvg - tMin) / 100 * tankSize).toFixed(2);
-
-  el.innerHTML = `<div class="mt anim d1">
-    <div class="mt-top"><div class="mt-title">Price Pressure</div><div class="mt-badge ${lv}">${lt}</div></div>
-    <div class="mt-track"><div class="mt-fill ${lv}" style="width:${urgency}%"></div></div>
-    <div class="mt-range"><span>No rush</span><span>Fill up now</span></div>
-    <div class="mt-detail">${tomorrowMsg ? tomorrowMsg + ' ' : ''}Shopping around saves <b>$${saved}</b> on a ${tankSize}L fill — the cheapest is <b>${spread.toFixed(1)}% below</b> average right now.</div>
-  </div>`;
+  urg=Math.min(Math.max(urg,3),100);
+  let lv,lt;if(urg<30){lv='lo';lt='Low';}else if(urg<65){lv='md';lt='Moderate';}else{lv='hi';lt='High';}
+  const tk=car().t,sv=((avg-mn)/100*tk).toFixed(2);
+  el.innerHTML=`<div class="pp anim d1"><div class="pp-top"><div class="pp-title">Price Pressure</div><div class="pp-badge ${lv}">${lt}</div></div><div class="pp-track"><div class="pp-fill ${lv}" style="width:${urg}%"></div></div><div class="pp-range"><span>No rush</span><span>Fill up now</span></div><div class="pp-detail">${tmsg?tmsg+' ':''}Shopping around saves <b>$${sv}</b> on a ${tk}L fill.</div></div>`;
 }
 
 function renderChart() {
-  const el = document.getElementById('chart-section');
-  if (!historyData.length || historyData.length < 2) {
-    el.innerHTML = `<div class="ch anim d2">
-      <div class="ch-title">Price History</div>
-      <div class="ch-empty">Collecting data — history will appear here after a few days of running.</div>
-    </div>`;
-    return;
-  }
-
-  el.innerHTML = `<div class="ch anim d2"><div class="ch-title">Price History (${historyData.length} days)</div><canvas id="price-chart"></canvas></div>`;
-
-  if (priceChart) priceChart.destroy();
-  const ctx = document.getElementById('price-chart').getContext('2d');
-  const labels = historyData.map(h => { const d = new Date(h.date); return d.toLocaleDateString('en-AU',{day:'numeric',month:'short'}); });
-
-  priceChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Cheapest', data: historyData.map(h=>h.min_price), borderColor: '#00e676', backgroundColor: '#00e67615', fill: true, tension: .3, pointRadius: 0, borderWidth: 2 },
-        { label: 'Average', data: historyData.map(h=>h.avg_price), borderColor: '#448aff', backgroundColor: 'transparent', tension: .3, pointRadius: 0, borderWidth: 1.5, borderDash: [4,4] },
-        { label: 'Highest', data: historyData.map(h=>h.max_price), borderColor: '#ff3d5760', backgroundColor: 'transparent', tension: .3, pointRadius: 0, borderWidth: 1, borderDash: [2,3] },
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { intersect: false, mode: 'index' },
-      plugins: {
-        legend: { display: true, position: 'bottom', labels: { color: '#606078', font: { size: 10, family: 'DM Sans' }, boxWidth: 12, padding: 8 } },
-        tooltip: { backgroundColor: '#12121c', borderColor: '#2a2a40', borderWidth: 1, titleFont: { family: 'JetBrains Mono', size: 11 }, bodyFont: { family: 'DM Sans', size: 11 }, padding: 10, cornerRadius: 8, callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}¢/L` } }
-      },
-      scales: {
-        x: { grid: { color: '#1f1f3020' }, ticks: { color: '#40404f', font: { size: 9, family: 'JetBrains Mono' }, maxTicksLimit: 7 } },
-        y: { grid: { color: '#1f1f3040' }, ticks: { color: '#40404f', font: { size: 9, family: 'JetBrains Mono' }, callback: v => v.toFixed(0) + '¢' } }
-      }
-    }
-  });
+  const el=document.getElementById('sec-chart');
+  if(!hist.length||hist.length<2){el.innerHTML=`<div class="ch anim d2"><div class="ch-title">Price History</div><div class="ch-empty">Building history — chart appears after a few days of data collection.</div></div>`;return;}
+  el.innerHTML=`<div class="ch anim d2"><div class="ch-title">Price History · ${hist.length} days</div><canvas id="pc"></canvas></div>`;
+  if(chart)chart.destroy();
+  const ctx=document.getElementById('pc').getContext('2d');
+  const lbl=hist.map(h=>{const d=new Date(h.date);return d.toLocaleDateString('en-AU',{day:'numeric',month:'short'});});
+  chart=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:[
+    {label:'Cheapest',data:hist.map(h=>h.min_price),borderColor:'#22d67a',backgroundColor:'rgba(34,214,122,.08)',fill:true,tension:.35,pointRadius:0,borderWidth:2},
+    {label:'Average',data:hist.map(h=>h.avg_price),borderColor:'#3d8bfd',backgroundColor:'transparent',tension:.35,pointRadius:0,borderWidth:1.5,borderDash:[4,3]},
+    {label:'Highest',data:hist.map(h=>h.max_price),borderColor:'rgba(240,70,90,.4)',backgroundColor:'transparent',tension:.35,pointRadius:0,borderWidth:1,borderDash:[2,3]},
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:true,position:'bottom',labels:{color:'#4a5b6d',font:{size:10,family:'Instrument Sans'},boxWidth:10,padding:8}},tooltip:{backgroundColor:'#151c25',borderColor:'#2a3a4a',borderWidth:1,titleFont:{family:'Space Mono',size:10},bodyFont:{family:'Instrument Sans',size:11},padding:10,cornerRadius:8,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}¢/L`}}},scales:{x:{grid:{color:'rgba(30,42,54,.5)'},ticks:{color:'#344050',font:{size:9,family:'Space Mono'},maxTicksLimit:6}},y:{grid:{color:'rgba(30,42,54,.5)'},ticks:{color:'#344050',font:{size:9,family:'Space Mono'},callback:v=>v.toFixed(0)+'¢'}}}}});
 }
 
-function renderCheapest() {
-  const el = document.getElementById('cheapest-section');
-  if (!todayData.length) { el.innerHTML=''; return; }
-  const rn = REGIONS.find(r=>r.id===region)?.name||'Perth';
-  const fn = FUELS.find(f=>f.id===fuel)?.name||'ULP';
-  const top10 = todayData.slice(0,10);
-  const tmrTop3 = tomorrowData.slice(0,3);
-
-  let tmrHtml = '';
-  if (tmrTop3.length) {
-    tmrHtml = `<div class="ls-hd" style="border-top:1px solid var(--border)"><div class="ls-title"><span class="ls-tag">Tomorrow</span></div></div>` +
-      tmrTop3.map((s,i) => stRow(s,i)).join('');
-  }
-
-  el.innerHTML = `<div class="ls anim d3"><div class="ls-hd"><div class="ls-title">Cheapest ${fn} — ${rn}</div></div>${top10.map((s,i)=>stRow(s,i)).join('')}${tmrHtml}</div>`;
+function renderStations() {
+  const el=document.getElementById('sec-stations');
+  if(!tData.length){el.innerHTML='';return;}
+  const rn=reg==='all'?'All Perth':REGIONS.find(r=>r.id===reg)?.name||'Perth';
+  const fn=FUELS.find(f=>f.id===fl)?.name||'ULP';
+  const top=tData.slice(0,10),tmr=nData.slice(0,3);
+  const pin='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  let th='';if(tmr.length)th=`<div class="ls-hd" style="border-top:1px solid var(--border)"><div class="ls-title"><span class="ls-tag">Tomorrow</span></div></div>`+tmr.map((s,i)=>sRow(s,i,pin)).join('');
+  el.innerHTML=`<div class="ls anim d3"><div class="ls-hd"><div class="ls-title">Cheapest ${fn} · ${rn}</div></div>${top.map((s,i)=>sRow(s,i,pin)).join('')}${th}</div>`;
 }
 
-function stRow(s,i) {
-  const [w,d] = s.price.toFixed(1).split('.');
-  const url = `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`;
-  return `<div class="si" onclick="window.open('${url}','_blank')">
-    <div class="si-rank ${i===0?'top':''}">${i+1}</div>
-    <div class="si-info"><div class="si-name">${s.name}</div><div class="si-loc">${s.address}, ${s.location}</div><span class="si-brand">${s.brand}</span></div>
-    <div class="si-price">${w}<small>.${d}</small></div>
-  </div>`;
+function sRow(s,i,pin) {
+  const[w,d]=s.price.toFixed(1).split('.');
+  const url=`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
+  return`<div class="si" onclick="window.open('${url}','_blank')"><div class="si-rank ${i===0?'top':''}">${i+1}</div><div class="si-info"><div class="si-name">${s.name}</div><div class="si-loc">${pin} ${s.address}, ${s.location}</div><span class="si-brand">${s.brand}</span></div><div class="si-price">${w}<small>.${d}</small></div></div>`;
 }
 
 function renderSavings() {
-  const el = document.getElementById('savings-section');
-  if (!todayData.length) { el.innerHTML=''; return; }
-  const tMin = todayData[0].price;
-  const tAvg = todayData.reduce((s,d)=>s+d.price,0)/todayData.length;
-  const car = getMyCar();
-  const pf = ((tAvg-tMin)/100*car.tank);
-  const py = pf * 52;
-  el.innerHTML = `<div class="sv anim d4"><div class="sv-title">Your FuelMate savings</div>
-    <div class="sv-row"><span>Per fill-up (${car.tank}L${car.name ? ' · '+car.name : ''})</span><span>$${pf.toFixed(2)}</span></div>
-    <div class="sv-row"><span>Per week</span><span>$${pf.toFixed(2)}</span></div>
-    <div class="sv-big"><div class="sv-big-l">Est. yearly savings</div><div class="sv-big-v">$${py.toFixed(0)}</div></div>
-  </div>`;
+  const el=document.getElementById('sec-savings');
+  if(!tData.length){el.innerHTML='';return;}
+  const mn=tData[0].price,avg=tData.reduce((s,d)=>s+d.price,0)/tData.length,c=car();
+  const pf=((avg-mn)/100*c.t),py=pf*52;
+  el.innerHTML=`<div class="sv anim d4"><div class="sv-title">Your savings</div><div class="sv-row"><span>Per fill (${c.t}L${c.n?' · '+c.n:''})</span><span>$${pf.toFixed(2)}</span></div><div class="sv-row"><span>Per week</span><span>$${pf.toFixed(2)}</span></div><div class="sv-big"><div class="sv-big-l">Est. yearly</div><div class="sv-big-v">$${py.toFixed(0)}</div></div></div>`;
 }
 
-// ---- Actions ----
-async function setRegion(id) { region=id; renderPills(); await loadData(); }
-async function setFuel(id) { fuel=id; renderPills(); await loadData(); }
+function renderCar() {
+  const el=document.getElementById('sec-car');const c=car();const has=c.n!=='';
+  el.innerHTML=`<div class="mc anim d5"><div class="mc-top"><div class="pp-title">My Car</div>${has?`<div class="mc-cur">${c.n} · ${c.t}L</div>`:''}</div>${has?`<div class="mc-change" onclick="document.getElementById('cpk').classList.toggle('hide')">Change</div>`:`<div class="mc-prompt">Set your car for personalised savings</div>`}<div id="cpk" class="mc-picker ${has?'hide':''}">`+
+  `<div class="mc-grid">${CARS.map(x=>`<div class="mc-opt ${c.n===x.n?'on':''}" onclick="setCar({n:'${x.n}',t:${x.t}})">${x.n}<small>${x.t}L tank</small></div>`).join('')}</div>`+
+  `<div class="mc-custom"><span>Custom:</span><input type="range" id="tsl" min="30" max="150" value="${c.t}" oninput="document.getElementById('tv').textContent=this.value+'L'"><span id="tv">${c.t}L</span><button onclick="setCar({n:'Custom',t:+document.getElementById('tsl').value})">Set</button></div></div></div>`;
+}
+
+// ---- ACTIONS ----
+async function setReg(id){reg=id;renderPills();await loadData();}
+async function setFl(id){fl=id;renderPills();await loadData();}
 
 function doShare() {
-  if (!todayData.length) return;
-  const tMin = todayData[0].price, tAvg = todayData.reduce((s,d)=>s+d.price,0)/todayData.length;
-  const car = getMyCar();
-  const savedPerFill = ((tAvg-tMin)/100*car.tank).toFixed(2);
-  const rn = REGIONS.find(r=>r.id===region)?.name||'Perth';
-  let tmrLine = '';
-  if (tomorrowData.length) {
-    const nAvg = tomorrowData.reduce((s,d)=>s+d.price,0)/tomorrowData.length;
-    const diff = nAvg - tAvg;
-    tmrLine = diff > 0 ? `\n⚠️ Prices rising ${diff.toFixed(1)}¢/L tomorrow!` : `\n✅ Prices dropping ${Math.abs(diff).toFixed(1)}¢/L tomorrow`;
+  if(!tData.length)return;
+  const mn=tData[0].price,avg=tData.reduce((s,d)=>s+d.price,0)/tData.length;
+  const c=car(),sv=((avg-mn)/100*c.t).toFixed(2);
+  const rn=reg==='all'?'Perth Metro':REGIONS.find(r=>r.id===reg)?.name||'Perth';
+  let tmr='';
+  if(nData.length){const na=nData.reduce((s,d)=>s+d.price,0)/nData.length,df=na-avg;
+    tmr=df>0?`\n⚠️ Prices rising ${df.toFixed(1)}¢/L tomorrow!`:`\n✅ Prices dropping ${Math.abs(df).toFixed(1)}¢/L tomorrow`;
   }
-  const txt = `⛽ Perth Fuel Alert (${rn})${tmrLine}\n\nCheapest now: ${todayData[0].name} — ${tMin.toFixed(1)}¢/L\nAverage: ${tAvg.toFixed(1)}¢/L\nSave $${savedPerFill} per fill by shopping around\n\nCheck prices → FuelMate Perth`;
-  if (navigator.share) navigator.share({title:'FuelMate Perth',text:txt}).catch(()=>{});
-  else navigator.clipboard.writeText(txt).then(()=>showToast('Copied!')).catch(()=>{});
+  const txt=`⛽ Perth Fuel Alert (${rn})${tmr}\n\nCheapest: ${tData[0].name} — ${mn.toFixed(1)}¢/L\nAverage: ${avg.toFixed(1)}¢/L\nSave $${sv} per fill\n\nCheck prices → https://app.fuelmate.live`;
+
+  if(navigator.share){
+    navigator.share({title:'FuelMate Perth',text:txt,url:'https://app.fuelmate.live'}).catch(()=>{});
+  } else {
+    // Fallback: copy to clipboard
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(()=>showToast('Copied to clipboard!')).catch(()=>fallbackCopy(txt));
+    } else { fallbackCopy(txt); }
+  }
 }
 
-function showToast(m) { const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),2200); }
+function fallbackCopy(txt) {
+  const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');showToast('Copied to clipboard!');}catch(e){showToast('Could not copy');}
+  document.body.removeChild(ta);
+}
 
-// ---- Init ----
-async function init() {
-  document.getElementById('hd-date').textContent = new Date().toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2500);}
+
+// ---- INIT ----
+async function init(){
+  document.getElementById('hd-date').textContent=new Date().toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
   renderPills();
   await loadData();
-  document.getElementById('loader').classList.add('out');
+  document.getElementById('ld').classList.add('out');
   document.getElementById('app').classList.add('on');
 }
-
 init();
 </script>
 </body>
