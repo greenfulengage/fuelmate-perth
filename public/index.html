@@ -143,6 +143,29 @@ body{min-height:100dvh;overflow-x:hidden}
 .d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}.d5{animation-delay:.25s}
 
 @media(max-width:380px){.vd-ans{font-size:24px}.vs-v{font-size:16px}.sv-big-v{font-size:30px}}
+
+/* SPARKLINE WORM */
+.vd-spark{margin:0 -4px 16px;position:relative}
+.vd-spark svg{width:100%;height:40px;display:block}
+.vd-spark-label{position:absolute;bottom:-2px;right:0;font-size:9px;color:var(--t4);font-family:var(--fm);letter-spacing:1px;text-transform:uppercase}
+
+/* MY CAR */
+.mc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:12px}
+.mc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.mc-current{font-family:var(--fm);font-size:11px;color:var(--green);font-weight:600}
+.mc-prompt{font-size:12.5px;color:var(--t2);margin-bottom:12px}
+.mc-change{font-size:12px;color:var(--blue);cursor:pointer;font-weight:600;margin-bottom:10px}
+.mc-picker{overflow:hidden;transition:max-height .3s ease}
+.mc-picker.hidden{max-height:0!important;overflow:hidden}
+.mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.mc-opt{padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;transition:.2s;line-height:1.3}
+.mc-opt small{display:block;font-size:10px;color:var(--t3);font-weight:400;margin-top:2px}
+.mc-opt:hover{border-color:var(--t3)}
+.mc-opt.on{border-color:var(--green);background:var(--green-d)}
+.mc-custom{display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--t3)}
+.mc-custom input[type=range]{flex:1;accent-color:var(--green);height:4px}
+.mc-custom span:last-of-type{font-family:var(--fm);font-weight:700;color:var(--t1);min-width:36px}
+.mc-custom button{padding:6px 14px;border:none;background:var(--green);color:#000;border-radius:var(--rs);font-family:var(--ff);font-size:11px;font-weight:700;cursor:pointer}
 </style>
 </head>
 <body>
@@ -169,6 +192,7 @@ body{min-height:100dvh;overflow-x:hidden}
   <div id="chart-section"></div>
   <div id="cheapest-section"></div>
   <div id="savings-section"></div>
+  <div id="mycar-section"></div>
 
   <div class="ft">
     Data from <a href="https://www.fuelwatch.wa.gov.au" target="_blank" rel="noopener">FuelWatch WA</a><br>
@@ -193,6 +217,63 @@ const FUELS = [{id:'1',name:'ULP 91'},{id:'2',name:'PULP 95'},{id:'6',name:'98 R
 let region = '25', fuel = '1';
 let todayData = [], tomorrowData = [], historyData = [];
 let priceChart = null;
+
+// ---- My Car (persisted in localStorage) ----
+const POPULAR_CARS = [
+  {name:'Toyota Hilux',tank:80,fuel:'1'},{name:'Ford Ranger',tank:80,fuel:'4'},
+  {name:'Toyota RAV4',tank:55,fuel:'1'},{name:'Mazda CX-5',tank:56,fuel:'1'},
+  {name:'Toyota Corolla',tank:50,fuel:'1'},{name:'Hyundai i30',tank:50,fuel:'1'},
+  {name:'Kia Cerato',tank:50,fuel:'1'},{name:'Mitsubishi Triton',tank:75,fuel:'4'},
+  {name:'Toyota LandCruiser',tank:138,fuel:'4'},{name:'Isuzu D-Max',tank:76,fuel:'4'},
+  {name:'Nissan X-Trail',tank:55,fuel:'1'},{name:'Hyundai Tucson',tank:54,fuel:'1'},
+  {name:'Subaru Outback',tank:63,fuel:'1'},{name:'Tesla Model 3',tank:0,fuel:'0'},
+  {name:'Custom',tank:50,fuel:'1'},
+];
+
+function getMyCar() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('fuelmate_car'));
+    if (saved && saved.tank) return saved;
+  } catch(_){}
+  return { name: '', tank: 50, fuel: '1' };
+}
+
+function saveMyCar(car) {
+  localStorage.setItem('fuelmate_car', JSON.stringify(car));
+  renderAll();
+  renderMyCar();
+}
+
+function renderMyCar() {
+  const el = document.getElementById('mycar-section');
+  const car = getMyCar();
+  const hascar = car.name && car.name !== '';
+
+  el.innerHTML = `<div class="mc anim d5">
+    <div class="mc-top">
+      <div class="mt-title">My Car</div>
+      ${hascar ? `<div class="mc-current">${car.name} · ${car.tank}L</div>` : ''}
+    </div>
+    ${hascar ? `<div class="mc-change" onclick="toggleCarPicker()">Change vehicle</div>` : `<div class="mc-prompt">Set your vehicle for personalised savings</div>`}
+    <div id="car-picker" class="${hascar ? 'mc-picker hidden' : 'mc-picker'}">
+      <div class="mc-grid">
+        ${POPULAR_CARS.filter(c=>c.tank>0).map(c =>
+          `<div class="mc-opt ${car.name===c.name?'on':''}" onclick="saveMyCar({name:'${c.name}',tank:${c.tank},fuel:'${c.fuel}'})">${c.name}<small>${c.tank}L</small></div>`
+        ).join('')}
+      </div>
+      <div class="mc-custom">
+        <span>Custom tank:</span>
+        <input type="range" id="tank-slider" min="30" max="150" value="${car.tank}" oninput="document.getElementById('tank-val').textContent=this.value+'L'">
+        <span id="tank-val">${car.tank}L</span>
+        <button onclick="saveMyCar({name:'Custom',tank:parseInt(document.getElementById('tank-slider').value),fuel:fuel})">Set</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleCarPicker() {
+  document.getElementById('car-picker').classList.toggle('hidden');
+}
 
 // ---- API calls (now to our own backend) ----
 async function api(path) {
@@ -229,6 +310,36 @@ function renderAll() {
   renderChart();
   renderCheapest();
   renderSavings();
+  renderMyCar();
+}
+
+function buildSparkline(data) {
+  if (!data || data.length < 2) return '';
+  const prices = data.map(h => h.avg_price);
+  const min = Math.min(...prices) - 2, max = Math.max(...prices) + 2;
+  const w = 260, h = 40;
+  const points = prices.map((p, i) => {
+    const x = (i / (prices.length - 1)) * w;
+    const y = h - ((p - min) / (max - min)) * h;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const last = prices[prices.length - 1];
+  const prev = prices[prices.length - 2];
+  const color = last > prev ? 'var(--red)' : 'var(--green)';
+  const lx = (w).toFixed(1), ly = (h - ((last - min) / (max - min)) * h).toFixed(1);
+
+  return `<div class="vd-spark">
+    <svg viewBox="0 0 ${w} ${h+6}" preserveAspectRatio="none">
+      <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient></defs>
+      <polygon points="0,${h+6} ${points.join(' ')} ${w},${h+6}" fill="url(#sg)"/>
+      <polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="${lx}" cy="${ly}" r="3" fill="${color}"/>
+    </svg>
+    <div class="vd-spark-label">${prices.length}-day trend</div>
+  </div>`;
 }
 
 function renderVerdict() {
@@ -254,10 +365,13 @@ function renderVerdict() {
     why=`Tomorrow's prices publish after <b>2:30pm</b>. Today's cheapest is <b>${tMin.toFixed(1)}¢/L</b>.`;
   }
 
+  const sparkline = buildSparkline(historyData);
+
   el.innerHTML = `<div class="vd ${cls} anim">
     <div class="vd-lbl">Should you fill up?</div>
     <div class="vd-ans">${ans}</div>
     <div class="vd-why">${why}</div>
+    ${sparkline}
     <div class="vd-stats">
       <div class="vs"><div class="vs-v">${tMin.toFixed(1)}</div><div class="vs-l">Cheapest ¢/L</div></div>
       <div class="vs"><div class="vs-v">${tAvg.toFixed(1)}</div><div class="vs-l">Average ¢/L</div></div>
@@ -271,19 +385,32 @@ function renderMeter() {
   if (!todayData.length) { el.innerHTML=''; return; }
   const tMin = todayData[0].price;
   const tAvg = todayData.reduce((s,d)=>s+d.price,0)/todayData.length;
-  const overpay = (tAvg - tMin) / tMin * 100;
-  const pct = Math.min(overpay / 15 * 100, 100);
+  const spread = (tAvg - tMin) / tMin * 100;
+
+  // Factor in tomorrow for urgency score (0-100)
+  let urgency = spread / 15 * 50; // spread contributes up to 50%
+  let tomorrowMsg = '';
+  if (tomorrowData.length) {
+    const nAvg = tomorrowData.reduce((s,d)=>s+d.price,0)/tomorrowData.length;
+    const diff = nAvg - tAvg;
+    if (diff > 0) { urgency += Math.min(diff / 10 * 50, 50); tomorrowMsg = `Prices are <b>rising ${diff.toFixed(1)}¢/L tomorrow</b>.`; }
+    else { urgency = Math.max(urgency - 15, 5); tomorrowMsg = `Prices are <b>easing ${Math.abs(diff).toFixed(1)}¢/L tomorrow</b>.`; }
+  }
+  urgency = Math.min(Math.max(urgency, 3), 100);
+
   let lv, lt;
-  if (overpay < 4) { lv='fair'; lt='Fair'; }
-  else if (overpay < 8) { lv='mid'; lt='Elevated'; }
-  else { lv='rip'; lt='Rip-Off'; }
-  const saved = ((tAvg - tMin) / 100 * 50).toFixed(2);
+  if (urgency < 30) { lv='fair'; lt='Low'; }
+  else if (urgency < 65) { lv='mid'; lt='Moderate'; }
+  else { lv='rip'; lt='High'; }
+
+  const tankSize = getMyCar().tank;
+  const saved = ((tAvg - tMin) / 100 * tankSize).toFixed(2);
 
   el.innerHTML = `<div class="mt anim d1">
-    <div class="mt-top"><div class="mt-title">Rip-Off Meter</div><div class="mt-badge ${lv}">${lt}</div></div>
-    <div class="mt-track"><div class="mt-fill ${lv}" style="width:${pct}%"></div></div>
-    <div class="mt-range"><span>Fair price</span><span>Getting ripped off</span></div>
-    <div class="mt-detail">The average Perth driver pays <b>${overpay.toFixed(1)}% more</b> than the cheapest option. On a 50L tank, that's <b>$${saved} wasted</b>.</div>
+    <div class="mt-top"><div class="mt-title">Price Pressure</div><div class="mt-badge ${lv}">${lt}</div></div>
+    <div class="mt-track"><div class="mt-fill ${lv}" style="width:${urgency}%"></div></div>
+    <div class="mt-range"><span>No rush</span><span>Fill up now</span></div>
+    <div class="mt-detail">${tomorrowMsg ? tomorrowMsg + ' ' : ''}Shopping around saves <b>$${saved}</b> on a ${tankSize}L fill — the cheapest is <b>${spread.toFixed(1)}% below</b> average right now.</div>
   </div>`;
 }
 
@@ -361,10 +488,11 @@ function renderSavings() {
   if (!todayData.length) { el.innerHTML=''; return; }
   const tMin = todayData[0].price;
   const tAvg = todayData.reduce((s,d)=>s+d.price,0)/todayData.length;
-  const pf = ((tAvg-tMin)/100*50);
+  const car = getMyCar();
+  const pf = ((tAvg-tMin)/100*car.tank);
   const py = pf * 52;
   el.innerHTML = `<div class="sv anim d4"><div class="sv-title">Your FuelMate savings</div>
-    <div class="sv-row"><span>Per fill-up (50L)</span><span>$${pf.toFixed(2)}</span></div>
+    <div class="sv-row"><span>Per fill-up (${car.tank}L${car.name ? ' · '+car.name : ''})</span><span>$${pf.toFixed(2)}</span></div>
     <div class="sv-row"><span>Per week</span><span>$${pf.toFixed(2)}</span></div>
     <div class="sv-big"><div class="sv-big-l">Est. yearly savings</div><div class="sv-big-v">$${py.toFixed(0)}</div></div>
   </div>`;
@@ -377,9 +505,16 @@ async function setFuel(id) { fuel=id; renderPills(); await loadData(); }
 function doShare() {
   if (!todayData.length) return;
   const tMin = todayData[0].price, tAvg = todayData.reduce((s,d)=>s+d.price,0)/todayData.length;
-  const overpay = ((tAvg-tMin)/tMin*100).toFixed(1);
+  const car = getMyCar();
+  const savedPerFill = ((tAvg-tMin)/100*car.tank).toFixed(2);
   const rn = REGIONS.find(r=>r.id===region)?.name||'Perth';
-  const txt = `⛽ Perth Fuel Alert (${rn})\n\nAverage drivers overpaying by ${overpay}%\nCheapest: ${todayData[0].name} — ${tMin.toFixed(1)}¢/L\nAverage: ${tAvg.toFixed(1)}¢/L\n\nStop overpaying → FuelMate Perth`;
+  let tmrLine = '';
+  if (tomorrowData.length) {
+    const nAvg = tomorrowData.reduce((s,d)=>s+d.price,0)/tomorrowData.length;
+    const diff = nAvg - tAvg;
+    tmrLine = diff > 0 ? `\n⚠️ Prices rising ${diff.toFixed(1)}¢/L tomorrow!` : `\n✅ Prices dropping ${Math.abs(diff).toFixed(1)}¢/L tomorrow`;
+  }
+  const txt = `⛽ Perth Fuel Alert (${rn})${tmrLine}\n\nCheapest now: ${todayData[0].name} — ${tMin.toFixed(1)}¢/L\nAverage: ${tAvg.toFixed(1)}¢/L\nSave $${savedPerFill} per fill by shopping around\n\nCheck prices → FuelMate Perth`;
   if (navigator.share) navigator.share({title:'FuelMate Perth',text:txt}).catch(()=>{});
   else navigator.clipboard.writeText(txt).then(()=>showToast('Copied!')).catch(()=>{});
 }
