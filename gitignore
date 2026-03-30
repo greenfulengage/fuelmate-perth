@@ -1,0 +1,4 @@
+node_modules/
+fuelmate.db
+.env
+.DS_Store
