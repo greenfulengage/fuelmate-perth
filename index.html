@@ -2,476 +2,110 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0c1117">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="FuelMate Perth — Should you fill up now? Live fuel prices, tomorrow's forecast, and personalised savings tracker.">
-<meta property="og:title" content="FuelMate Perth — Stop Overpaying for Fuel">
-<meta property="og:description" content="Perth fuel prices change daily. See live prices, tomorrow's forecast, and how much you could save.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://app.fuelmate.live">
-<link rel="manifest" href="/manifest.json">
-<title>FuelMate Perth</title>
+<title>FuelMate — Perth's Smartest Fuel Price Tracker</title>
+<meta name="description" content="Should you fill up now or wait? FuelMate tracks Perth fuel prices in real-time and tells you when to fill up. Free.">
+<meta property="og:title" content="FuelMate — Should You Fill Up Now?">
+<meta property="og:description" content="Perth fuel prices change daily. FuelMate tells you exactly when to fill up and where to save.">
+<meta property="og:url" content="https://fuelmate.live">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#0c1117;--bg2:#111920;--card:#151c25;--card-h:#1a2330;
-  --border:#1e2a36;--border2:#2a3a4a;
-  --t1:#eaf0f6;--t2:#8899aa;--t3:#4a5b6d;--t4:#344050;
-  --green:#22d67a;--green-d:rgba(34,214,122,.12);
-  --red:#f0465a;--red-d:rgba(240,70,90,.12);
-  --amber:#f0a030;--amber-d:rgba(240,160,48,.12);
-  --blue:#3d8bfd;--blue-d:rgba(61,139,253,.12);
-  --r:14px;--rs:8px;
-  --ff:'Instrument Sans',sans-serif;--fm:'Space Mono',monospace
-}
-html.light{
-  --bg:#f4f5f7;--bg2:#ebedf0;--card:#ffffff;--card-h:#f8f9fa;
-  --border:#dde1e6;--border2:#c8cdd3;
-  --t1:#1a1e24;--t2:#4a5568;--t3:#8896a6;--t4:#b0bac5;
-  --green:#16a35a;--green-d:rgba(22,163,90,.1);
-  --red:#d92b42;--red-d:rgba(217,43,66,.1);
-  --amber:#c88020;--amber-d:rgba(200,128,32,.1);
-  --blue:#2d6fd6;--blue-d:rgba(45,111,214,.1);
-}
-.theme-btn{width:36px;height:36px;border:1px solid var(--border);background:var(--card);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;-webkit-tap-highlight-color:transparent;flex-shrink:0}
-.theme-btn:active{transform:scale(.9)}
-.theme-btn svg{width:18px;height:18px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:.2s}
-.theme-btn:hover svg{stroke:var(--t1)}
-.theme-btn .sun{display:none}.theme-btn .moon{display:block}
-html.light .theme-btn .sun{display:block}
-html.light .theme-btn .moon{display:none}
+:root{--bg:#0c1117;--card:#151c25;--border:#1e2a36;--t1:#eaf0f6;--t2:#8899aa;--t3:#4a5b6d;--green:#22d67a;--green2:#0fa968;--red:#f0465a;--fm:'Space Mono',monospace;--ff:'Instrument Sans',sans-serif}
+html{background:var(--bg);color:var(--t1);font-family:var(--ff)}
+body{min-height:100vh;overflow-x:hidden}
 
-html{background:var(--bg);color:var(--t1);font-family:var(--ff);-webkit-font-smoothing:antialiased}
-body{min-height:100dvh;overflow-x:hidden}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(34,214,122,.08) 0%,transparent 70%);pointer-events:none}
 
-#ld{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .5s,visibility .5s}
-#ld.out{opacity:0;visibility:hidden;pointer-events:none}
-.ld-logo{font-family:var(--fm);font-size:20px;font-weight:700;letter-spacing:2px}
-.ld-logo em{font-style:normal;color:var(--green)}
-.ld-sub{font-size:11px;color:var(--t3);letter-spacing:3px;text-transform:uppercase}
-.ld-bar{width:100px;height:2px;background:var(--border);border-radius:2px;overflow:hidden}
-.ld-bar i{display:block;width:35%;height:100%;background:var(--green);border-radius:2px;animation:slide 1s ease-in-out infinite}
-@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(380%)}}
+.logo{font-family:var(--fm);font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--t3);margin-bottom:32px;animation:fadeIn .8s ease}
+.logo span{color:var(--green)}
 
-.app{max-width:480px;margin:0 auto;padding:0 16px 120px;opacity:0;transition:opacity .5s .2s}.app.on{opacity:1}
+h1{font-size:clamp(36px,8vw,64px);font-weight:700;line-height:1.05;letter-spacing:-2px;margin-bottom:20px;animation:fadeUp .8s ease .1s both}
+h1 em{font-style:normal;color:var(--green);position:relative}
+h1 em::after{content:'';position:absolute;bottom:2px;left:0;right:0;height:3px;background:var(--green);opacity:.3;border-radius:2px}
 
-.hd{padding:16px 0 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;background:linear-gradient(var(--bg) 70%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-.hd-brand{font-family:var(--fm);font-size:15px;font-weight:700;letter-spacing:1px}
-.hd-brand em{font-style:normal;color:var(--green)}
+.subtitle{font-size:clamp(16px,3vw,20px);color:var(--t2);max-width:480px;line-height:1.6;margin-bottom:40px;animation:fadeUp .8s ease .2s both}
 
-.pills{display:flex;gap:4px;padding:3px;background:var(--bg2);border-radius:10px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.pills::-webkit-scrollbar{display:none}
-.pill{flex:1;min-width:0;padding:9px 8px;border:none;background:0;color:var(--t3);font-family:var(--ff);font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;transition:.2s;white-space:nowrap;text-align:center}
-.pill.on{background:var(--card);color:var(--t1);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:fadeUp .8s ease .3s both}
+.cta{display:inline-flex;align-items:center;gap:8px;padding:16px 32px;border-radius:12px;font-family:var(--ff);font-size:16px;font-weight:600;text-decoration:none;transition:transform .15s,box-shadow .2s;cursor:pointer;border:none}
+.cta:active{transform:scale(.97)}
+.cta-primary{background:var(--green);color:#0c1117;box-shadow:0 4px 24px rgba(34,214,122,.25)}
+.cta-primary:hover{box-shadow:0 6px 32px rgba(34,214,122,.35)}
+.cta-secondary{background:var(--card);color:var(--t1);border:1px solid var(--border)}
 
-.vd{position:relative;border-radius:var(--r);padding:24px 20px;margin-bottom:10px;border:1px solid var(--border);background:var(--card);overflow:hidden}
-.vd::before{content:'';position:absolute;inset:0;opacity:.05;border-radius:var(--r)}
-.vd.go::before{background:linear-gradient(135deg,var(--green),#0fa968)}
-.vd.wait::before{background:linear-gradient(135deg,var(--amber),#d08020)}
-.vd.now::before{background:linear-gradient(135deg,var(--red),#d02040)}
-.vd-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--t3);margin-bottom:10px}
-.vd-ans{font-family:var(--fm);font-size:28px;font-weight:700;line-height:1.1;margin-bottom:6px}
-.vd.go .vd-ans{color:var(--green)}.vd.wait .vd-ans{color:var(--amber)}.vd.now .vd-ans{color:var(--red)}
-.vd-why{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px}.vd-why b{color:var(--t1);font-weight:600}
+.stats{display:flex;gap:40px;margin-top:56px;animation:fadeUp .8s ease .4s both}
+.stat{text-align:center}
+.stat-v{font-family:var(--fm);font-size:28px;font-weight:700;color:var(--green)}
+.stat-l{font-size:12px;color:var(--t3);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
 
-.vd-spark{margin:0 -2px 14px}.vd-spark svg{width:100%;height:36px;display:block}
-.vd-spark-lbl{font-size:9px;color:var(--t4);font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;text-align:right;margin-top:2px}
+.features{padding:80px 20px;max-width:800px;margin:0 auto}
+.features h2{text-align:center;font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:48px}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.feat-grid{grid-template-columns:1fr}}
+.feat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;transition:border-color .2s}
+.feat:hover{border-color:var(--t3)}
+.feat-icon{font-size:28px;margin-bottom:12px}
+.feat-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.feat-desc{font-size:13px;color:var(--t2);line-height:1.5}
 
-.vd-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.vs{text-align:center;padding:8px 0;background:var(--bg2);border-radius:var(--rs)}
-.vs-v{font-family:var(--fm);font-size:17px;font-weight:700}
-.vs-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.bottom-cta{text-align:center;padding:60px 20px 80px}
+.bottom-cta p{color:var(--t3);font-size:13px;margin-top:16px}
+.bottom-cta p a{color:var(--t2);text-decoration:underline;text-underline-offset:2px}
 
-.pp{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:10px}
-.pp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.pp-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px}
-.pp-badge{font-family:var(--fm);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px}
-.pp-badge.lo{background:var(--green-d);color:var(--green)}
-.pp-badge.md{background:var(--amber-d);color:var(--amber)}
-.pp-badge.hi{background:var(--red-d);color:var(--red)}
-.pp-track{height:6px;background:var(--bg2);border-radius:6px;overflow:hidden;margin-bottom:6px}
-.pp-fill{height:100%;border-radius:6px;transition:width 1s cubic-bezier(.4,0,.2,1)}
-.pp-fill.lo{background:linear-gradient(90deg,var(--green),#40e890)}
-.pp-fill.md{background:linear-gradient(90deg,var(--amber),#e08020)}
-.pp-fill.hi{background:linear-gradient(90deg,var(--red),#ff5070)}
-.pp-range{display:flex;justify-content:space-between;font-size:9px;color:var(--t4);font-family:var(--fm);letter-spacing:.5px}
-.pp-detail{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12.5px;color:var(--t2);line-height:1.6}.pp-detail b{color:var(--t1)}
-
-.ch{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:10px}
-.ch-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
-.ch-empty{text-align:center;padding:16px 0;color:var(--t3);font-size:12px}
-.ch canvas{width:100%!important;height:170px!important}
-
-.ls{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
-.ls-hd{padding:14px 16px 10px;display:flex;justify-content:space-between;align-items:center}
-.ls-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px}
-.ls-tag{font-size:10px;font-weight:700;color:var(--blue);background:var(--blue-d);padding:3px 8px;border-radius:5px;letter-spacing:.5px;text-transform:uppercase}
-.si{display:flex;align-items:center;padding:11px 16px;gap:10px;border-top:1px solid var(--border);transition:background .15s;cursor:pointer}
-.si:active{background:var(--card-h)}
-.si-rank{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--t4);width:18px;text-align:center;flex-shrink:0}.si-rank.top{color:var(--green)}
-.si-info{flex:1;min-width:0}.si-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.si-loc{font-size:11px;color:var(--t3);margin-top:1px;display:flex;align-items:center;gap:4px}
-.si-loc svg{width:12px;height:12px;opacity:.5;flex-shrink:0}
-.si-brand{font-size:9px;color:var(--t2);background:var(--bg2);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:3px}
-.si-price{font-family:var(--fm);font-size:16px;font-weight:700;flex-shrink:0}.si-price small{font-size:10px;color:var(--t3)}
-.si-dist{font-family:var(--fm);font-size:10px;color:var(--blue);font-weight:600;display:block;margin-bottom:2px}
-
-.sv{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:10px}
-.sv-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
-.sv-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0}
-.sv-row+.sv-row{border-top:1px solid var(--border)}
-.sv-row span:first-child{font-size:12.5px;color:var(--t2)}
-.sv-row span:last-child{font-family:var(--fm);font-size:14px;font-weight:700;color:var(--green)}
-.sv-big{text-align:center;padding:14px 0 4px;border-top:1px solid var(--border);margin-top:6px}
-.sv-big-l{font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:2px;margin-bottom:3px}
-.sv-big-v{font-family:var(--fm);font-size:34px;font-weight:700;color:var(--green)}
-
-.mc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:10px}
-.mc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.mc-cur{font-family:var(--fm);font-size:11px;color:var(--green);font-weight:700}
-.mc-change{font-size:12px;color:var(--blue);cursor:pointer;font-weight:600;margin-bottom:8px}
-.mc-prompt{font-size:12px;color:var(--t2);margin-bottom:10px}
-.mc-picker.hide{display:none}
-.mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
-.mc-opt{padding:10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);font-size:11.5px;font-weight:600;cursor:pointer;transition:.15s;line-height:1.3}
-.mc-opt small{display:block;font-size:10px;color:var(--t3);font-weight:400;margin-top:1px}
-.mc-opt.on{border-color:var(--green);background:var(--green-d)}
-.mc-custom{display:flex;align-items:center;gap:6px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--t3)}
-.mc-custom input[type=range]{flex:1;accent-color:var(--green);height:3px}
-.mc-custom span:last-of-type{font-family:var(--fm);font-weight:700;color:var(--t1);min-width:34px;font-size:12px}
-.mc-custom button{padding:6px 12px;border:none;background:var(--green);color:var(--bg);border-radius:var(--rs);font-family:var(--ff);font-size:11px;font-weight:700;cursor:pointer}
-
-.sh-bar{position:fixed;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:50;display:flex;justify-content:center}
-.sh-btn{width:100%;max-width:448px;padding:14px;border:none;border-radius:12px;font-family:var(--ff);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--bg);background:var(--green);box-shadow:0 4px 20px rgba(34,214,122,.3);transition:transform .1s;-webkit-tap-highlight-color:transparent}
-.sh-btn:active{transform:scale(.97)}
-.sh-btn svg{width:16px;height:16px}
-
-.ft{text-align:center;padding:20px 0 16px;font-size:10px;color:var(--t4);line-height:1.7}
-.ft a{color:var(--t3);text-decoration:underline;text-underline-offset:2px}
-
-.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-70px);background:var(--card);border:1px solid var(--border2);color:var(--t1);padding:10px 18px;border-radius:10px;font-size:12px;font-weight:600;z-index:200;transition:transform .3s cubic-bezier(.4,0,.2,1);pointer-events:none}
-.toast.on{transform:translateX(-50%) translateY(0)}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.anim{animation:fadeUp .4s ease-out both}
-.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}.d5{animation-delay:.25s}
-
-.err{text-align:center;padding:28px 16px;color:var(--t3)}.err h3{color:var(--red);font-size:14px;margin-bottom:4px}.err p{font-size:12px}
-
-@media(max-width:380px){.vd-ans{font-size:22px}.vs-v{font-size:15px}.sv-big-v{font-size:28px}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
 
-<div id="ld">
-  <div class="ld-logo">FUEL<em>MATE</em></div>
-  <div class="ld-sub">Checking Perth prices</div>
-  <div class="ld-bar"><i></i></div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<div class="app" id="app">
-  <header class="hd">
-    <div class="hd-brand">FUEL<em>MATE</em></div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <div class="hd-date" id="hd-date" style="font-size:10px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--fm)"></div>
-      <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">
-        <svg class="moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      </button>
-    </div>
-  </header>
-
-  <div class="pills" id="rp"></div>
-  <div class="pills" id="fp"></div>
-
-  <div id="sec-verdict"></div>
-  <div id="sec-pressure"></div>
-  <div id="sec-chart"></div>
-  <div id="sec-stations"></div>
-  <div id="sec-savings"></div>
-  <div id="sec-car"></div>
-
-  <div class="ft">
-    Data from <a href="https://www.fuelwatch.wa.gov.au" target="_blank" rel="noopener">FuelWatch WA</a><br>
-    Prices published by the WA Government. Updated daily<br>
-    <span style="margin-top:3px;display:inline-block">Built in Perth, for Perth</span>
+<section class="hero">
+  <div class="logo">FUEL<span>MATE</span></div>
+  <h1>Should you<br><em>fill up now</em>?</h1>
+  <p class="subtitle">Perth fuel prices change daily. FuelMate tells you exactly when to fill up, where the cheapest servo is, and how much you'll save.</p>
+  <div class="cta-row">
+    <a href="https://app.fuelmate.live" class="cta cta-primary">Check prices now</a>
   </div>
-</div>
+  <div class="stats" id="stats">
+    <div class="stat"><div class="stat-v" id="s-cheapest">--</div><div class="stat-l">Cheapest ULP</div></div>
+    <div class="stat"><div class="stat-v" id="s-avg">--</div><div class="stat-l">Average</div></div>
+    <div class="stat"><div class="stat-v" id="s-stations">--</div><div class="stat-l">Stations</div></div>
+  </div>
+</section>
 
-<div class="sh-bar">
-  <button class="sh-btn" onclick="doShare()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-    Share Perth Fuel Alert
-  </button>
-</div>
+<section class="features">
+  <h2>Why Perth drivers use FuelMate</h2>
+  <div class="feat-grid">
+    <div class="feat"><div class="feat-icon">📊</div><div class="feat-title">Price Pressure gauge</div><div class="feat-desc">See at a glance whether prices are rising or falling and how urgently you should fill up.</div></div>
+    <div class="feat"><div class="feat-icon">⏰</div><div class="feat-title">Tomorrow's prices today</div><div class="feat-desc">FuelWatch publishes tomorrow's prices at 2:30pm. We tell you whether to wait or fill now.</div></div>
+    <div class="feat"><div class="feat-icon">📍</div><div class="feat-title">Nearest cheap stations</div><div class="feat-desc">Tap any station to open directions in Google Maps. Find the cheapest servo near you.</div></div>
+    <div class="feat"><div class="feat-icon">📈</div><div class="feat-title">Price history</div><div class="feat-desc">Track how Perth fuel prices move over days, weeks, and months. Spot the patterns.</div></div>
+  </div>
+</section>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<section class="bottom-cta">
+  <a href="https://app.fuelmate.live" class="cta cta-primary">Open FuelMate</a>
+  <p>Free. No app download. Data from <a href="https://www.fuelwatch.wa.gov.au" target="_blank">FuelWatch WA</a></p>
+</section>
+
 <script>
-// ---- THEME ----
-function toggleTheme() {
-  const isLight = document.documentElement.classList.toggle('light');
-  localStorage.setItem('fm_theme', isLight ? 'light' : 'dark');
-  document.querySelector('meta[name="theme-color"]').content = isLight ? '#f4f5f7' : '#0c1117';
-}
-(function(){
-  const saved = localStorage.getItem('fm_theme');
-  if (saved === 'light') {
-    document.documentElement.classList.add('light');
-    document.querySelector('meta[name="theme-color"]').content = '#f4f5f7';
-  }
-})();
-
-// ============================================
-// FuelMate Perth v2
-// ============================================
-
-const REGIONS = [
-  {id:'near',name:'Nearest'},
-  {id:'all',name:'All Perth'},
-  {id:'25',name:'North'},
-  {id:'26',name:'South'},
-  {id:'27',name:'East / Hills'},
-];
-const FUELS = [{id:'1',name:'ULP 91'},{id:'2',name:'PULP 95'},{id:'6',name:'98 RON'},{id:'4',name:'Diesel'},{id:'5',name:'LPG'}];
-
-const CARS = [
-  {n:'Toyota Hilux',t:80},{n:'Ford Ranger',t:80},{n:'Toyota RAV4',t:55},{n:'Mazda CX-5',t:56},
-  {n:'Toyota Corolla',t:50},{n:'Hyundai i30',t:50},{n:'Kia Cerato',t:50},{n:'Mitsubishi Triton',t:75},
-  {n:'Toyota LandCruiser',t:138},{n:'Isuzu D-Max',t:76},{n:'Nissan X-Trail',t:55},{n:'Hyundai Tucson',t:54},
-];
-
-let reg='all', fl='1', tData=[], nData=[], hist=[], chart=null;
-let userLat=null, userLng=null, geoStatus='idle';
-
-function distKm(lat1,lng1,lat2,lng2) {
-  const R=6371, toR=Math.PI/180;
-  const dLat=(lat2-lat1)*toR, dLng=(lng2-lng1)*toR;
-  const a=Math.sin(dLat/2)**2 + Math.cos(lat1*toR)*Math.cos(lat2*toR)*Math.sin(dLng/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-
-function addDistances(stations) {
-  if (!userLat||!userLng) return stations;
-  return stations.map(s => ({...s, dist: distKm(userLat,userLng,s.lat,s.lng)}));
-}
-
-function requestLocation() {
-  return new Promise((resolve,reject) => {
-    if (!navigator.geolocation) { reject('No geolocation'); return; }
-    geoStatus='loading';
-    navigator.geolocation.getCurrentPosition(
-      pos => { userLat=pos.coords.latitude; userLng=pos.coords.longitude; geoStatus='granted'; resolve(); },
-      err => { geoStatus='denied'; reject(err); },
-      { enableHighAccuracy:false, timeout:8000, maximumAge:300000 }
-    );
-  });
-}
-
-function car() { try { const c=JSON.parse(localStorage.getItem('fm_car')); if(c?.t) return c; } catch(e){} return {n:'',t:50}; }
-function setCar(c) { localStorage.setItem('fm_car',JSON.stringify(c)); renderAll(); renderCar(); }
-
-// ---- API ----
-async function api(p) { const r=await fetch(p); if(!r.ok) throw new Error(r.status); return r.json(); }
-
-async function fetchPrices(product, day) {
-  if (reg === 'all' || reg === 'near') {
-    const [n,s,e] = await Promise.all([
-      api(`/api/prices?product=${product}&region=25&day=${day}`).catch(()=>({stations:[]})),
-      api(`/api/prices?product=${product}&region=26&day=${day}`).catch(()=>({stations:[]})),
-      api(`/api/prices?product=${product}&region=27&day=${day}`).catch(()=>({stations:[]})),
-    ]);
-    let all = [...(n.stations||[]),...(s.stations||[]),...(e.stations||[])];
-    if (reg === 'near' && userLat && userLng) {
-      all = addDistances(all).sort((a,b) => a.dist - b.dist);
-    } else {
-      all.sort((a,b) => a.price - b.price);
-    }
-    return all;
-  }
-  const d = await api(`/api/prices?product=${product}&region=${reg}&day=${day}`);
-  return d.stations || [];
-}
-
-async function loadData() {
-  const [t,n,h] = await Promise.allSettled([
-    fetchPrices(fl,'today'),
-    fetchPrices(fl,'tomorrow'),
-    api(`/api/history?product=${fl}&region=${reg==='all'||reg==='near'?'25':reg}&days=30`),
-  ]);
-  tData = t.status==='fulfilled' ? t.value : [];
-  nData = n.status==='fulfilled' ? n.value : [];
-  hist = h.status==='fulfilled' ? (h.value.history||[]) : [];
-  renderAll();
-}
-
-// ---- RENDER ----
-function renderPills() {
-  document.getElementById('rp').innerHTML = REGIONS.map(r=>`<button class="pill ${r.id===reg?'on':''}" onclick="setReg('${r.id}')">${r.name}</button>`).join('');
-  document.getElementById('fp').innerHTML = FUELS.map(f=>`<button class="pill ${f.id===fl?'on':''}" onclick="setFl('${f.id}')">${f.name}</button>`).join('');
-}
-
-function renderAll() { renderVerdict(); renderPressure(); renderChart(); renderStations(); renderSavings(); renderCar(); }
-
-function sparkSVG() {
-  if (!hist||hist.length<2) return '';
-  const p=hist.map(h=>h.avg_price), mn=Math.min(...p)-2, mx=Math.max(...p)+2, w=280, h2=32;
-  const pts=p.map((v,i)=>`${(i/(p.length-1)*w).toFixed(1)},${(h2-((v-mn)/(mx-mn))*h2).toFixed(1)}`);
-  const last=p[p.length-1],prev=p[p.length-2],col=last>prev?'var(--red)':'var(--green)';
-  const ly=h2-((last-mn)/(mx-mn))*h2;
-  return `<div class="vd-spark"><svg viewBox="0 0 ${w} ${h2+4}" preserveAspectRatio="none"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".2"/><stop offset="100%" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><polygon points="0,${h2+4} ${pts.join(' ')} ${w},${h2+4}" fill="url(#sg)"/><polyline points="${pts.join(' ')}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${w}" cy="${ly.toFixed(1)}" r="2.5" fill="${col}"/></svg><div class="vd-spark-lbl">${p.length}-day trend</div></div>`;
-}
-
-function renderVerdict() {
-  const el=document.getElementById('sec-verdict');
-  if(!tData.length){el.innerHTML='<div class="err"><h3>No data</h3><p>FuelWatch hasn\'t published prices for this selection.</p></div>';return;}
-  const mn=tData[0].price,mx=tData[tData.length-1].price,avg=tData.reduce((s,d)=>s+d.price,0)/tData.length,sp=mx-mn;
-  let cls,ans,why;
-  if(nData.length){const na=nData.reduce((s,d)=>s+d.price,0)/nData.length,df=na-avg;
-    if(df>3){cls='now';ans='FILL UP NOW';why=`Prices <b>jumping ${df.toFixed(1)}c/L tomorrow</b>. Fill your tank today.`;}
-    else if(df<-3){cls='wait';ans='WAIT';why=`Prices <b>dropping ${Math.abs(df).toFixed(1)}c/L tomorrow</b>. Hold off and save.`;}
-    else{cls='go';ans='FILL UP';why=`Prices <b>stable</b>. Tomorrow within ${Math.abs(df).toFixed(1)}c/L of today.`;}
-  }else{cls='go';ans='FILL UP';why=`Tomorrow's prices available after <b>2:30pm</b>. Cheapest now <b>${mn.toFixed(1)}c/L</b>.`;}
-  el.innerHTML=`<div class="vd ${cls} anim"><div class="vd-lbl">Should you fill up?</div><div class="vd-ans">${ans}</div><div class="vd-why">${why}</div>${sparkSVG()}<div class="vd-stats"><div class="vs"><div class="vs-v">${mn.toFixed(1)}</div><div class="vs-l">Cheapest</div></div><div class="vs"><div class="vs-v">${avg.toFixed(1)}</div><div class="vs-l">Average</div></div><div class="vs"><div class="vs-v">${sp.toFixed(1)}</div><div class="vs-l">Spread</div></div></div></div>`;
-}
-
-function renderPressure() {
-  const el=document.getElementById('sec-pressure');
-  if(!tData.length){el.innerHTML='';return;}
-  const mn=tData[0].price,avg=tData.reduce((s,d)=>s+d.price,0)/tData.length,gap=(avg-mn)/mn*100;
-  let urg=gap/15*50,tmsg='';
-  if(nData.length){const na=nData.reduce((s,d)=>s+d.price,0)/nData.length,df=na-avg;
-    if(df>0){urg+=Math.min(df/10*50,50);tmsg=`Prices <b>rising ${df.toFixed(1)}c/L tomorrow</b>.`;}
-    else{urg=Math.max(urg-15,5);tmsg=`Prices <b>easing ${Math.abs(df).toFixed(1)}c/L tomorrow</b>.`;}
-  }
-  urg=Math.min(Math.max(urg,3),100);
-  let lv,lt;if(urg<30){lv='lo';lt='Low';}else if(urg<65){lv='md';lt='Moderate';}else{lv='hi';lt='High';}
-  const tk=car().t,sv=((avg-mn)/100*tk).toFixed(2);
-  el.innerHTML=`<div class="pp anim d1"><div class="pp-top"><div class="pp-title">Price Pressure</div><div class="pp-badge ${lv}">${lt}</div></div><div class="pp-track"><div class="pp-fill ${lv}" style="width:${urg}%"></div></div><div class="pp-range"><span>No rush</span><span>Fill up now</span></div><div class="pp-detail">${tmsg?tmsg+' ':''}Shopping around saves <b>$${sv}</b> on a ${tk}L fill.</div></div>`;
-}
-
-function renderChart() {
-  const el=document.getElementById('sec-chart');
-  if(!hist.length||hist.length<2){el.innerHTML=`<div class="ch anim d2"><div class="ch-title">Price History</div><div class="ch-empty">Building history. Chart appears after a few days of data collection.</div></div>`;return;}
-  el.innerHTML=`<div class="ch anim d2"><div class="ch-title">Price History. ${hist.length} days</div><canvas id="pc"></canvas></div>`;
-  if(chart)chart.destroy();
-  const ctx=document.getElementById('pc').getContext('2d');
-  const lbl=hist.map(h=>{const d=new Date(h.date);return d.toLocaleDateString('en-AU',{day:'numeric',month:'short'});});
-  chart=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:[
-    {label:'Cheapest',data:hist.map(h=>h.min_price),borderColor:'#22d67a',backgroundColor:'rgba(34,214,122,.08)',fill:true,tension:.35,pointRadius:0,borderWidth:2},
-    {label:'Average',data:hist.map(h=>h.avg_price),borderColor:'#3d8bfd',backgroundColor:'transparent',tension:.35,pointRadius:0,borderWidth:1.5,borderDash:[4,3]},
-    {label:'Highest',data:hist.map(h=>h.max_price),borderColor:'rgba(240,70,90,.4)',backgroundColor:'transparent',tension:.35,pointRadius:0,borderWidth:1,borderDash:[2,3]},
-  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:true,position:'bottom',labels:{color:'#4a5b6d',font:{size:10,family:'Instrument Sans'},boxWidth:10,padding:8}},tooltip:{backgroundColor:'#151c25',borderColor:'#2a3a4a',borderWidth:1,titleFont:{family:'Space Mono',size:10},bodyFont:{family:'Instrument Sans',size:11},padding:10,cornerRadius:8,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}c/L`}}},scales:{x:{grid:{color:'rgba(30,42,54,.5)'},ticks:{color:'#344050',font:{size:9,family:'Space Mono'},maxTicksLimit:6}},y:{grid:{color:'rgba(30,42,54,.5)'},ticks:{color:'#344050',font:{size:9,family:'Space Mono'},callback:v=>v.toFixed(0)+'c'}}}}});
-}
-
-function renderStations() {
-  const el=document.getElementById('sec-stations');
-  if(!tData.length){el.innerHTML='';return;}
-  const rn=reg==='near'?'Nearest':reg==='all'?'All Perth':REGIONS.find(r=>r.id===reg)?.name||'Perth';
-  const fn=FUELS.find(f=>f.id===fl)?.name||'ULP';
-  const pin='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
-
-  if (reg === 'near' && userLat) {
-    const nearest10 = tData.slice(0,10);
-    const within10km = addDistances([...tData]).filter(s=>s.dist<=10).sort((a,b)=>a.price-b.price).slice(0,5);
-    let cheapNearby = '';
-    if (within10km.length) {
-      cheapNearby = `<div class="ls-hd" style="border-top:1px solid var(--border)"><div class="ls-title"><span class="ls-tag">Cheapest within 10km</span></div></div>` + within10km.map((s,i)=>sRow(s,i,pin)).join('');
-    }
-    let th='';const tmr=nData.slice(0,3);
-    if(tmr.length) th=`<div class="ls-hd" style="border-top:1px solid var(--border)"><div class="ls-title"><span class="ls-tag">Tomorrow</span></div></div>`+tmr.map((s,i)=>sRow(s,i,pin)).join('');
-    el.innerHTML=`<div class="ls anim d3"><div class="ls-hd"><div class="ls-title">Nearest ${fn} Stations</div></div>${nearest10.map((s,i)=>sRow(s,i,pin)).join('')}${cheapNearby}${th}</div>`;
-  } else {
-    const top=tData.slice(0,10),tmr=nData.slice(0,3);
-    let th='';if(tmr.length)th=`<div class="ls-hd" style="border-top:1px solid var(--border)"><div class="ls-title"><span class="ls-tag">Tomorrow</span></div></div>`+tmr.map((s,i)=>sRow(s,i,pin)).join('');
-    el.innerHTML=`<div class="ls anim d3"><div class="ls-hd"><div class="ls-title">Cheapest ${fn}. ${rn}</div></div>${top.map((s,i)=>sRow(s,i,pin)).join('')}${th}</div>`;
-  }
-}
-
-function sRow(s,i,pin) {
-  const[w,d]=s.price.toFixed(1).split('.');
-  const url=`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
-  const distLabel = s.dist != null ? `<span class="si-dist">${s.dist<1?(s.dist*1000).toFixed(0)+'m':s.dist.toFixed(1)+'km'}</span>` : '';
-  return`<div class="si" onclick="window.open('${url}','_blank')"><div class="si-rank ${i===0?'top':''}">${i+1}</div><div class="si-info"><div class="si-name">${s.name}</div><div class="si-loc">${pin} ${s.address}, ${s.location}</div><span class="si-brand">${s.brand}</span></div><div style="text-align:right">${distLabel}<div class="si-price">${w}<small>.${d}</small></div></div></div>`;
-}
-
-function renderSavings() {
-  const el=document.getElementById('sec-savings');
-  if(!tData.length){el.innerHTML='';return;}
-  const mn=tData[0].price,avg=tData.reduce((s,d)=>s+d.price,0)/tData.length,c=car();
-  const pf=((avg-mn)/100*c.t),py=pf*52;
-  el.innerHTML=`<div class="sv anim d4"><div class="sv-title">Your savings</div><div class="sv-row"><span>Per fill (${c.t}L${c.n?' . '+c.n:''})</span><span>$${pf.toFixed(2)}</span></div><div class="sv-row"><span>Per week</span><span>$${pf.toFixed(2)}</span></div><div class="sv-big"><div class="sv-big-l">Est. yearly</div><div class="sv-big-v">$${py.toFixed(0)}</div></div></div>`;
-}
-
-function renderCar() {
-  const el=document.getElementById('sec-car');const c=car();const has=c.n!=='';
-  el.innerHTML=`<div class="mc anim d5"><div class="mc-top"><div class="pp-title">My Car</div>${has?`<div class="mc-cur">${c.n} . ${c.t}L</div>`:''}</div>${has?`<div class="mc-change" onclick="document.getElementById('cpk').classList.toggle('hide')">Change</div>`:`<div class="mc-prompt">Set your car for personalised savings</div>`}<div id="cpk" class="mc-picker ${has?'hide':''}">`+
-  `<div class="mc-grid">${CARS.map(x=>`<div class="mc-opt ${c.n===x.n?'on':''}" onclick="setCar({n:'${x.n}',t:${x.t}})">${x.n}<small>${x.t}L tank</small></div>`).join('')}</div>`+
-  `<div class="mc-custom"><span>Custom:</span><input type="range" id="tsl" min="30" max="150" value="${c.t}" oninput="document.getElementById('tv').textContent=this.value+'L'"><span id="tv">${c.t}L</span><button onclick="setCar({n:'Custom',t:+document.getElementById('tsl').value})">Set</button></div></div></div>`;
-}
-
-// ---- ACTIONS ----
-async function setReg(id){
-  reg=id;
-  renderPills();
-  if (id === 'near' && geoStatus !== 'granted') {
-    try {
-      showToast('Finding your location...');
-      await requestLocation();
-    } catch(e) {
-      showToast('Location access denied. Showing all Perth');
-      reg='all';
-      renderPills();
-    }
-  }
-  await loadData();
-}
-async function setFl(id){fl=id;renderPills();await loadData();}
-
-function doShare() {
-  if(!tData.length)return;
-  const mn=tData[0].price,avg=tData.reduce((s,d)=>s+d.price,0)/tData.length;
-  const c=car(),sv=((avg-mn)/100*c.t).toFixed(2);
-  const rn=reg==='all'?'Perth Metro':REGIONS.find(r=>r.id===reg)?.name||'Perth';
-  let tmr='';
-  if(nData.length){const na=nData.reduce((s,d)=>s+d.price,0)/nData.length,df=na-avg;
-    tmr=df>0?`\nPrices rising ${df.toFixed(1)}c/L tomorrow`:`\nPrices dropping ${Math.abs(df).toFixed(1)}c/L tomorrow`;
-  }
-  const txt=`Perth Fuel Alert (${rn})${tmr}\n\nCheapest: ${tData[0].name} - ${mn.toFixed(1)}c/L\nAverage: ${avg.toFixed(1)}c/L\nSave $${sv} per fill\n\nCheck prices: https://app.fuelmate.live`;
-
-  if(navigator.share){
-    navigator.share({title:'FuelMate Perth',text:txt,url:'https://app.fuelmate.live'}).catch(()=>{});
-  } else {
-    if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(txt).then(()=>showToast('Copied to clipboard')).catch(()=>fallbackCopy(txt));
-    } else { fallbackCopy(txt); }
-  }
-}
-
-function fallbackCopy(txt) {
-  const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';
-  document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy');showToast('Copied to clipboard');}catch(e){showToast('Could not copy');}
-  document.body.removeChild(ta);
-}
-
-function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2500);}
-
-// ---- INIT ----
-async function init(){
-  document.getElementById('hd-date').textContent=new Date().toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
-  renderPills();
-  await loadData();
-  document.getElementById('ld').classList.add('out');
-  document.getElementById('app').classList.add('on');
-}
-init();
+fetch('https://app.fuelmate.live/api/prices?product=1&region=25&day=today')
+  .then(r=>r.json()).then(d=>{
+    if(!d.stations?.length) return;
+    const prices = d.stations.map(s=>s.price);
+    document.getElementById('s-cheapest').textContent = Math.min(...prices).toFixed(1)+'c';
+    document.getElementById('s-avg').textContent = (prices.reduce((a,b)=>a+b)/prices.length).toFixed(1)+'c';
+    Promise.all([
+      fetch('https://app.fuelmate.live/api/prices?product=1&region=26&day=today').then(r=>r.json()),
+      fetch('https://app.fuelmate.live/api/prices?product=1&region=27&day=today').then(r=>r.json()),
+    ]).then(([south,east])=>{
+      const total = d.count + (south.count||0) + (east.count||0);
+      document.getElementById('s-stations').textContent = total+'+';
+    });
+  }).catch(()=>{});
 </script>
 </body>
 </html>
