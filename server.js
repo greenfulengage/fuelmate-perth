@@ -1,79 +1,66 @@
 // ============================================
-// FuelMate Perth — Backend Server
+// FuelMate Perth — Backend Server (Neon Postgres)
 // ============================================
-// Proxies FuelWatch RSS, stores historical data in SQLite (sql.js),
-// and serves the frontend as a static PWA.
-//
-// sql.js is pure JavaScript — no native compilation needed.
-// Works on Replit, Vercel, Railway, Render, anywhere.
-
 const express = require('express');
 const https = require('https');
 const { parseStringPromise } = require('xml2js');
 const path = require('path');
-const fs = require('fs');
-const initSqlJs = require('sql.js');
+const { Pool } = require('@neondatabase/serverless');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DB_PATH = path.join(__dirname, 'fuelmate.db');
 
-let db = null;
+// Neon Postgres — connection string from Vercel env var
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-// ---- SQLite Setup ----
+// ---- Database Setup ----
 async function initDB() {
-  const SQL = await initSqlJs();
-
-  if (fs.existsSync(DB_PATH)) {
-    const buffer = fs.readFileSync(DB_PATH);
-    db = new SQL.Database(buffer);
-    console.log('📂 Loaded existing database');
-  } else {
-    db = new SQL.Database();
-    console.log('🆕 Created new database');
-  }
-
-  db.run(`CREATE TABLE IF NOT EXISTS prices (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    date TEXT NOT NULL, region TEXT NOT NULL, product TEXT NOT NULL,
-    station_name TEXT, brand TEXT, price REAL NOT NULL,
-    location TEXT, address TEXT, latitude REAL, longitude REAL,
-    UNIQUE(date, station_name, product)
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS daily_summary (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    date TEXT NOT NULL, region TEXT NOT NULL, product TEXT NOT NULL,
-    min_price REAL, max_price REAL, avg_price REAL, station_count INTEGER,
-    UNIQUE(date, region, product)
-  )`);
-
-  db.run(`CREATE INDEX IF NOT EXISTS idx_prices_date ON prices(date)`);
-  db.run(`CREATE INDEX IF NOT EXISTS idx_summary_date ON daily_summary(date)`);
-  saveDB();
-}
-
-function saveDB() {
-  if (!db) return;
+  const client = await pool.connect();
   try {
-    const data = db.export();
-    fs.writeFileSync(DB_PATH, Buffer.from(data));
-  } catch (e) {
-    console.error('DB save error:', e.message);
+    await client.query(`CREATE TABLE IF NOT EXISTS prices (
+      id SERIAL PRIMARY KEY,
+      date TEXT NOT NULL,
+      region TEXT NOT NULL,
+      product TEXT NOT NULL,
+      station_name TEXT,
+      brand TEXT,
+      price REAL NOT NULL,
+      location TEXT,
+      address TEXT,
+      latitude REAL,
+      longitude REAL,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(date, station_name, product)
+    )`);
+    await client.query(`CREATE TABLE IF NOT EXISTS daily_summary (
+      id SERIAL PRIMARY KEY,
+      date TEXT NOT NULL,
+      region TEXT NOT NULL,
+      product TEXT NOT NULL,
+      min_price REAL,
+      max_price REAL,
+      avg_price REAL,
+      station_count INTEGER,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(date, region, product)
+    )`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_prices_date ON prices(date)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_prices_region ON prices(date, region, product)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_summary_date ON daily_summary(date)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_summary_lookup ON daily_summary(region, product, date)`);
+    console.log('DB initialised');
+  } finally {
+    client.release();
   }
 }
-
-// Auto-save every 5 minutes
-setInterval(saveDB, 5 * 60 * 1000);
 
 // ---- FuelWatch RSS Fetcher ----
 function fetchFuelWatch(product, region, day) {
   return new Promise((resolve, reject) => {
     const url = `https://www.fuelwatch.wa.gov.au/fuelwatch/fuelWatchRSS?Product=${product}&Region=${region}&Day=${day}`;
-
-    const req = https.get(url, { timeout: 12000 }, (res) => {
+    const req = https.get(url, { timeout: 15000 }, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        https.get(res.headers.location, { timeout: 12000 }, (res2) => {
+        https.get(res.headers.location, { timeout: 15000 }, (res2) => {
           readResponse(res2, resolve, reject);
         }).on('error', reject);
         return;
@@ -94,7 +81,6 @@ function readResponse(res, resolve, reject) {
       const result = await parseStringPromise(data, { explicitArray: false });
       const channel = result?.rss?.channel;
       if (!channel?.item) { resolve([]); return; }
-
       const items = Array.isArray(channel.item) ? channel.item : [channel.item];
       const stations = items.map(item => ({
         name: item['trading-name'] || '',
@@ -105,67 +91,91 @@ function readResponse(res, resolve, reject) {
         lat: parseFloat(item.latitude) || 0,
         lng: parseFloat(item.longitude) || 0,
         date: item.date || '',
-        phone: item.phone || '',
       })).sort((a, b) => a.price - b.price);
-
       resolve(stations);
     } catch (e) { reject(e); }
   });
   res.on('error', reject);
 }
 
-// ---- Store prices ----
-function storeStations(stations, region, product) {
-  if (!db || !stations.length) return;
+// ---- Store to Postgres ----
+async function storeStations(stations, region, product) {
+  if (!stations.length) return 0;
+  const client = await pool.connect();
   try {
-    db.run('BEGIN TRANSACTION');
+    await client.query('BEGIN');
+
+    // Insert individual station prices
+    const insertSQL = `INSERT INTO prices (date, region, product, station_name, brand, price, location, address, latitude, longitude)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+      ON CONFLICT (date, station_name, product) DO NOTHING`;
+
     for (const s of stations) {
-      db.run(
-        `INSERT OR IGNORE INTO prices (date,region,product,station_name,brand,price,location,address,latitude,longitude) VALUES (?,?,?,?,?,?,?,?,?,?)`,
-        [s.date, region, product, s.name, s.brand, s.price, s.location, s.address, s.lat, s.lng]
-      );
+      await client.query(insertSQL, [s.date, region, product, s.name, s.brand, s.price, s.location, s.address, s.lat, s.lng]);
     }
+
+    // Upsert daily summary
     const date = stations[0].date;
     const prices = stations.map(s => s.price);
-    const min = Math.min(...prices), max = Math.max(...prices);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
     const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
-    db.run(
-      `INSERT OR REPLACE INTO daily_summary (date,region,product,min_price,max_price,avg_price,station_count) VALUES (?,?,?,?,?,?,?)`,
+
+    await client.query(
+      `INSERT INTO daily_summary (date, region, product, min_price, max_price, avg_price, station_count)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)
+       ON CONFLICT (date, region, product)
+       DO UPDATE SET min_price=$4, max_price=$5, avg_price=$6, station_count=$7`,
       [date, region, product, min, max, avg, prices.length]
     );
-    db.run('COMMIT');
+
+    await client.query('COMMIT');
+    return stations.length;
   } catch (e) {
-    try { db.run('ROLLBACK'); } catch (_) {}
+    await client.query('ROLLBACK').catch(() => {});
     console.error('Store error:', e.message);
+    return 0;
+  } finally {
+    client.release();
   }
 }
 
-// ---- Background collection ----
+// ---- Collection Logic ----
 const METRO_REGIONS = ['25', '26', '27'];
 const PRODUCTS = ['1', '2', '4', '5', '6'];
 
 async function collectAllData() {
-  console.log(`[${new Date().toISOString()}] Collecting FuelWatch data...`);
-  let count = 0;
+  const start = Date.now();
+  let totalStored = 0;
+  let errors = 0;
+
   for (const region of METRO_REGIONS) {
     for (const product of PRODUCTS) {
       for (const day of ['today', 'yesterday']) {
         try {
           const stations = await fetchFuelWatch(product, region, day);
-          if (stations.length) { storeStations(stations, region, product); count += stations.length; }
-          await new Promise(r => setTimeout(r, 500));
+          if (stations.length) {
+            const stored = await storeStations(stations, region, product);
+            totalStored += stored;
+          }
+          // Small delay to be polite to FuelWatch
+          await new Promise(r => setTimeout(r, 300));
         } catch (e) {
-          // Silent fail — will retry next cycle
+          errors++;
         }
       }
     }
   }
-  console.log(`[${new Date().toISOString()}] Stored ${count} records`);
-  saveDB();
+
+  const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+  const result = { totalStored, errors, elapsed: elapsed + 's', timestamp: new Date().toISOString() };
+  console.log('Collection complete:', result);
+  return result;
 }
 
 // ---- API Routes ----
 
+// Live prices (proxied from FuelWatch RSS)
 app.get('/api/prices', async (req, res) => {
   try {
     const { product = '1', region = '25', day = 'today' } = req.query;
@@ -173,55 +183,87 @@ app.get('/api/prices', async (req, res) => {
       return res.status(400).json({ error: 'Day must be today, tomorrow, or yesterday' });
     }
     const stations = await fetchFuelWatch(product, region, day);
-    if (stations.length) { try { storeStations(stations, region, product); } catch (_) {} }
+    // Opportunistic storage on every request
+    if (stations.length && day !== 'tomorrow') {
+      storeStations(stations, region, product).catch(() => {});
+    }
     res.json({ count: stations.length, region, product, day, stations });
   } catch (e) {
-    console.error('API /prices:', e.message);
     res.status(500).json({ error: 'Failed to fetch fuel data' });
   }
 });
 
-app.get('/api/history', (req, res) => {
-  if (!db) return res.json({ history: [] });
+// Historical data
+app.get('/api/history', async (req, res) => {
   try {
     const { product = '1', region = '25', days = '30' } = req.query;
     const limit = Math.min(parseInt(days) || 30, 365);
-    const stmt = db.prepare(`
-      SELECT date, min_price, max_price, avg_price, station_count
-      FROM daily_summary WHERE region = ? AND product = ?
-      ORDER BY date DESC LIMIT ?
-    `);
-    stmt.bind([region, product, limit]);
-    const rows = [];
-    while (stmt.step()) rows.push(stmt.getAsObject());
-    stmt.free();
-    res.json({ region, product, days: limit, history: rows.reverse() });
+    const result = await pool.query(
+      `SELECT date, min_price, max_price, avg_price, station_count
+       FROM daily_summary WHERE region = $1 AND product = $2
+       ORDER BY date DESC LIMIT $3`,
+      [region, product, limit]
+    );
+    res.json({ region, product, days: limit, history: result.rows.reverse() });
   } catch (e) {
     res.status(500).json({ error: 'Failed to fetch history' });
   }
 });
 
-app.get('/api/stats', (req, res) => {
-  if (!db) return res.json({ today: null, weekAvg: null });
+// Stats summary
+app.get('/api/stats', async (req, res) => {
   try {
     const { region = '25', product = '1' } = req.query;
-    const s1 = db.prepare(`SELECT date,min_price,max_price,avg_price,station_count FROM daily_summary WHERE region=? AND product=? ORDER BY date DESC LIMIT 1`);
-    s1.bind([region, product]);
-    const today = s1.step() ? s1.getAsObject() : null;
-    s1.free();
-    const s2 = db.prepare(`SELECT AVG(avg_price) as week_avg, MIN(min_price) as week_min FROM (SELECT avg_price,min_price FROM daily_summary WHERE region=? AND product=? ORDER BY date DESC LIMIT 7)`);
-    s2.bind([region, product]);
-    const weekAvg = s2.step() ? s2.getAsObject() : null;
-    s2.free();
-    res.json({ today, weekAvg });
+    const todayResult = await pool.query(
+      `SELECT date, min_price, max_price, avg_price, station_count
+       FROM daily_summary WHERE region=$1 AND product=$2 ORDER BY date DESC LIMIT 1`,
+      [region, product]
+    );
+    const weekResult = await pool.query(
+      `SELECT AVG(avg_price) as week_avg, MIN(min_price) as week_min
+       FROM (SELECT avg_price, min_price FROM daily_summary WHERE region=$1 AND product=$2 ORDER BY date DESC LIMIT 7) sub`,
+      [region, product]
+    );
+    res.json({
+      today: todayResult.rows[0] || null,
+      weekAvg: weekResult.rows[0] || null
+    });
   } catch (e) {
     res.status(500).json({ error: 'Failed to get stats' });
   }
 });
 
-app.get('/api/health', (req, res) => {
-  const dbSize = fs.existsSync(DB_PATH) ? (fs.statSync(DB_PATH).size / 1024).toFixed(1) + 'KB' : 'none';
-  res.json({ status: 'ok', db: dbSize, uptime: process.uptime().toFixed(0) + 's' });
+// Health check
+app.get('/api/health', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) as rows FROM daily_summary');
+    res.json({
+      status: 'ok',
+      db: 'neon',
+      rows: result.rows[0].rows,
+      uptime: process.uptime().toFixed(0) + 's'
+    });
+  } catch (e) {
+    res.json({ status: 'error', db: 'disconnected', error: e.message });
+  }
+});
+
+// ---- CRON ENDPOINT ----
+// Vercel Cron hits this endpoint on schedule
+// Protected by CRON_SECRET env var
+app.get('/api/cron', async (req, res) => {
+  // Verify the request is from Vercel Cron
+  const authHeader = req.headers.authorization;
+  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    const result = await collectAllData();
+    res.json({ status: 'ok', ...result });
+  } catch (e) {
+    res.status(500).json({ status: 'error', error: e.message });
+  }
 });
 
 // ---- Serve Frontend ----
@@ -232,10 +274,10 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.ht
 async function start() {
   await initDB();
   app.listen(PORT, () => {
-    console.log(`🚀 FuelMate Perth running on port ${PORT}`);
+    console.log(`FuelMate Perth running on port ${PORT}`);
   });
+  // Initial collection on startup
   setTimeout(collectAllData, 3000);
-  setInterval(collectAllData, 4 * 60 * 60 * 1000);
 }
 
 start();
