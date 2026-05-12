@@ -13,6 +13,15 @@ const PORT = process.env.PORT || 3000;
 // Neon Postgres — connection string from Vercel env var
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
+// Lazy DB init — runs once on first request
+let dbReady = false;
+app.use(async (req, res, next) => {
+  if (!dbReady) {
+    try { await initDB(); dbReady = true; } catch(e) { console.error('DB init failed:', e.message); }
+  }
+  next();
+});
+
 // ---- Database Setup ----
 async function initDB() {
   const client = await pool.connect();
@@ -270,14 +279,15 @@ app.get('/api/cron', async (req, res) => {
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-// ---- Start ----
-async function start() {
-  await initDB();
-  app.listen(PORT, () => {
-    console.log(`FuelMate Perth running on port ${PORT}`);
-  });
-  // Initial collection on startup
-  setTimeout(collectAllData, 3000);
+// ---- Local dev server ----
+if (!process.env.VERCEL) {
+  (async () => {
+    await initDB();
+    dbReady = true;
+    app.listen(PORT, () => console.log(`FuelMate Perth running on port ${PORT}`));
+    setTimeout(collectAllData, 3000);
+  })();
 }
 
-start();
+// Export for Vercel serverless
+module.exports = app;
