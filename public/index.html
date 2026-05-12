@@ -120,6 +120,8 @@ body{min-height:100dvh;overflow-x:hidden}
 .si-brand{font-size:9px;color:var(--t2);background:var(--bg2);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:3px}
 .si-price{font-family:var(--fm);font-size:16px;font-weight:700;flex-shrink:0}.si-price small{font-size:10px;color:var(--t3)}
 .si-dist{font-family:var(--fm);font-size:10px;color:var(--blue);font-weight:600;display:block;margin-bottom:2px}
+.si-dir{font-family:var(--fm);font-size:9px;font-weight:700;display:block;margin-top:1px}
+.si-dir.up{color:var(--red)}.si-dir.dn{color:var(--green)}.si-dir.eq{color:var(--t4)}
 
 .sv{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:10px}
 .sv-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
@@ -163,6 +165,22 @@ body{min-height:100dvh;overflow-x:hidden}
 
 .err{text-align:center;padding:28px 16px;color:var(--t3)}.err h3{color:var(--red);font-size:14px;margin-bottom:4px}.err p{font-size:12px}
 
+/* Price Cycle Bar */
+.cy{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:10px}
+.cy-status{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.cy-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cy-dot.live{background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite}
+.cy-dot.wait{background:var(--amber)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.cy-msg{font-size:12.5px;font-weight:600;line-height:1.4}
+.cy-sub{font-size:11px;color:var(--t3);line-height:1.5;margin-bottom:10px}
+.cy-track{position:relative;height:4px;background:var(--bg2);border-radius:4px;margin-bottom:6px}
+.cy-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--blue))}
+.cy-marks{display:flex;justify-content:space-between;font-size:8px;color:var(--t4);font-family:var(--fm);letter-spacing:.5px}
+.cy-marks span.now{color:var(--green);font-weight:700}
+.cy-alert{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--t2)}
+.cy-alert svg{width:14px;height:14px;stroke:var(--amber);flex-shrink:0}
+
 @media(max-width:380px){.vd-ans{font-size:22px}.vs-v{font-size:15px}.sv-big-v{font-size:28px}}
 </style>
 </head>
@@ -191,6 +209,7 @@ body{min-height:100dvh;overflow-x:hidden}
   <div class="pills" id="rp"></div>
   <div class="pills" id="fp"></div>
 
+  <div id="sec-cycle"></div>
   <div id="sec-verdict"></div>
   <div id="sec-pressure"></div>
   <div id="sec-chart"></div>
@@ -320,7 +339,58 @@ function renderPills() {
   document.getElementById('fp').innerHTML = FUELS.map(f=>`<button class="pill ${f.id===fl?'on':''}" onclick="setFl('${f.id}')">${f.name}</button>`).join('');
 }
 
-function renderAll() { renderVerdict(); renderPressure(); renderChart(); renderStations(); renderSavings(); renderCar(); }
+function renderAll() { renderCycle(); renderVerdict(); renderPressure(); renderChart(); renderStations(); renderSavings(); renderCar(); }
+
+// ---- PERTH TIME ----
+function perthNow() {
+  return new Date(new Date().toLocaleString('en-US', {timeZone:'Australia/Perth'}));
+}
+
+function renderCycle() {
+  const el=document.getElementById('sec-cycle');
+  const now=perthNow(), h=now.getHours(), m=now.getMinutes();
+  const totalMin = h*60+m;
+  const hasTomorrow = nData.length > 0;
+  const bell='<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+
+  let dotCls, msg, sub, alertMsg='';
+
+  if (hasTomorrow) {
+    // Tomorrow's prices are available
+    const na = nData.reduce((s,d)=>s+d.price,0)/nData.length;
+    const avg = tData.length ? tData.reduce((s,d)=>s+d.price,0)/tData.length : na;
+    const df = na - avg;
+    dotCls = 'live';
+    if (df > 1) {
+      msg = `Tomorrow's prices are in — up ${df.toFixed(1)}c/L`;
+      sub = 'Fill up today to beat the increase.';
+    } else if (df < -1) {
+      msg = `Tomorrow's prices are in — down ${Math.abs(df).toFixed(1)}c/L`;
+      sub = 'Hold off. Cheaper prices tomorrow.';
+    } else {
+      msg = `Tomorrow's prices are in — no real change`;
+      sub = 'Fill up whenever suits you.';
+    }
+  } else {
+    // Tomorrow not available yet
+    dotCls = 'live';
+    msg = `Today's prices`;
+    const remaining = 870 - totalMin;
+    if (remaining > 0) {
+      const rh = Math.floor(remaining/60), rm = remaining%60;
+      sub = `Tomorrow's prices in ${rh > 0 ? rh+'h ':''}${rm}m. We'll tell you what's coming.`;
+      alertMsg = `Get alerted at 2:30pm when tomorrow's prices drop.`;
+    } else {
+      sub = `Tomorrow's prices are usually out by now. Check back shortly.`;
+    }
+  }
+
+  el.innerHTML=`<div class="cy anim">
+    <div class="cy-status"><div class="cy-dot ${dotCls}"></div><div class="cy-msg">${msg}</div></div>
+    <div class="cy-sub">${sub}</div>
+    ${alertMsg?`<div class="cy-alert">${bell} ${alertMsg}</div>`:''}
+  </div>`;
+}
 
 function sparkSVG() {
   if (!hist||hist.length<2) return '';
@@ -335,12 +405,31 @@ function renderVerdict() {
   const el=document.getElementById('sec-verdict');
   if(!tData.length){el.innerHTML='<div class="err"><h3>No data</h3><p>FuelWatch hasn\'t published prices for this selection.</p></div>';return;}
   const mn=tData[0].price,mx=tData[tData.length-1].price,avg=tData.reduce((s,d)=>s+d.price,0)/tData.length,sp=mx-mn;
+  const now=perthNow(), totalMin=now.getHours()*60+now.getMinutes();
+  const hasTomorrow = nData.length > 0;
   let cls,ans,why;
-  if(nData.length){const na=nData.reduce((s,d)=>s+d.price,0)/nData.length,df=na-avg;
-    if(df>3){cls='now';ans='FILL UP NOW';why=`Prices <b>jumping ${df.toFixed(1)}c/L tomorrow</b>. Fill your tank today.`;}
-    else if(df<-3){cls='wait';ans='WAIT';why=`Prices <b>dropping ${Math.abs(df).toFixed(1)}c/L tomorrow</b>. Hold off and save.`;}
-    else{cls='go';ans='FILL UP';why=`Prices <b>stable</b>. Tomorrow within ${Math.abs(df).toFixed(1)}c/L of today.`;}
-  }else{cls='go';ans='FILL UP';why=`Tomorrow's prices available after <b>2:30pm</b>. Cheapest now <b>${mn.toFixed(1)}c/L</b>.`;}
+
+  if (hasTomorrow) {
+    const na=nData.reduce((s,d)=>s+d.price,0)/nData.length, df=na-avg;
+    const cheapestTmrw = nData[0];
+    if(df>3){
+      cls='now';ans='FILL UP NOW';
+      why=`Tomorrow's prices are <b>up ${df.toFixed(1)}c/L</b>. Cheapest today is <b>${mn.toFixed(1)}c/L</b> at ${tData[0].name}.`;
+    } else if(df<-3){
+      cls='wait';ans='WAIT UNTIL TOMORROW';
+      why=`Tomorrow's prices are <b>down ${Math.abs(df).toFixed(1)}c/L</b>. Cheapest tomorrow will be <b>${cheapestTmrw.price.toFixed(1)}c/L</b> at ${cheapestTmrw.name}.`;
+    } else {
+      cls='go';ans='NO RUSH';
+      why=`Prices are <b>steady</b> — tomorrow within ${Math.abs(df).toFixed(1)}c/L. Cheapest now <b>${mn.toFixed(1)}c/L</b> at ${tData[0].name}.`;
+    }
+  } else if (totalMin < 870) {
+    cls='go';ans='TODAY\'S PRICES';
+    why=`Cheapest <b>${mn.toFixed(1)}c/L</b> at ${tData[0].name}. Tomorrow's prices at <b>2:30pm</b>.`;
+  } else {
+    cls='go';ans='TODAY\'S PRICES';
+    why=`Cheapest <b>${mn.toFixed(1)}c/L</b> at ${tData[0].name}. Tomorrow's prices may be delayed.`;
+  }
+
   el.innerHTML=`<div class="vd ${cls} anim"><div class="vd-lbl">Should you fill up?</div><div class="vd-ans">${ans}</div><div class="vd-why">${why}</div>${sparkSVG()}<div class="vd-stats"><div class="vs"><div class="vs-v">${mn.toFixed(1)}</div><div class="vs-l">Cheapest</div></div><div class="vs"><div class="vs-v">${avg.toFixed(1)}</div><div class="vs-l">Average</div></div><div class="vs"><div class="vs-v">${sp.toFixed(1)}</div><div class="vs-l">Spread</div></div></div></div>`;
 }
 
@@ -365,7 +454,7 @@ function renderChart() {
   el.innerHTML=`<div class="ch anim d2"><div class="ch-title">Price History. ${hist.length} days</div><canvas id="pc"></canvas></div>`;
   if(chart)chart.destroy();
   const ctx=document.getElementById('pc').getContext('2d');
-  const lbl=hist.map(h=>{const d=new Date(h.date);return d.toLocaleDateString('en-AU',{day:'numeric',month:'short'});});
+  const lbl=hist.map(h=>{const d=new Date(h.date);return d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric'});});
   chart=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:[
     {label:'Cheapest',data:hist.map(h=>h.min_price),borderColor:'#22d67a',backgroundColor:'rgba(34,214,122,.08)',fill:true,tension:.35,pointRadius:0,borderWidth:2},
     {label:'Average',data:hist.map(h=>h.avg_price),borderColor:'#3d8bfd',backgroundColor:'transparent',tension:.35,pointRadius:0,borderWidth:1.5,borderDash:[4,3]},
@@ -401,7 +490,20 @@ function sRow(s,i,pin) {
   const[w,d]=s.price.toFixed(1).split('.');
   const url=`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
   const distLabel = s.dist != null ? `<span class="si-dist">${s.dist<1?(s.dist*1000).toFixed(0)+'m':s.dist.toFixed(1)+'km'}</span>` : '';
-  return`<div class="si" onclick="window.open('${url}','_blank')"><div class="si-rank ${i===0?'top':''}">${i+1}</div><div class="si-info"><div class="si-name">${s.name}</div><div class="si-loc">${pin} ${s.address}, ${s.location}</div><span class="si-brand">${s.brand}</span></div><div style="text-align:right">${distLabel}<div class="si-price">${w}<small>.${d}</small></div></div></div>`;
+
+  // Tomorrow direction arrow
+  let dirLabel = '';
+  if (nData.length) {
+    const tmrw = nData.find(t => t.name === s.name);
+    if (tmrw) {
+      const diff = tmrw.price - s.price;
+      if (diff > 0.5) dirLabel = `<span class="si-dir up">▲ ${diff.toFixed(1)}c</span>`;
+      else if (diff < -0.5) dirLabel = `<span class="si-dir dn">▼ ${Math.abs(diff).toFixed(1)}c</span>`;
+      else dirLabel = `<span class="si-dir eq">— same</span>`;
+    }
+  }
+
+  return`<div class="si" onclick="window.open('${url}','_blank')"><div class="si-rank ${i===0?'top':''}">${i+1}</div><div class="si-info"><div class="si-name">${s.name}</div><div class="si-loc">${pin} ${s.address}, ${s.location}</div><span class="si-brand">${s.brand}</span></div><div style="text-align:right">${distLabel}<div class="si-price">${w}<small>.${d}</small></div>${dirLabel}</div></div>`;
 }
 
 function renderSavings() {
